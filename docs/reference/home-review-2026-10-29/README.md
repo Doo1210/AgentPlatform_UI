@@ -1,6 +1,6 @@
 # 首页与侧边栏对照截图（2026-10-29）
 
-本目录保存用户提供的二十五张原始 PNG 及四份视觉风格要求，按消息顺序重命名。图片复制后已逐张核对 SHA-256，未裁剪或压缩。
+本目录保存用户提供的三十张原始 PNG 及四份视觉风格要求，按消息顺序重命名。图片复制后已逐张核对 SHA-256，未裁剪或压缩。
 
 - [01-current-home.png](01-current-home.png)：当前改版原型首页。
 - [02-sidebar-version-a.png](02-sidebar-version-a.png)：侧边栏版本 A，偏“应用广场 / 开发中心 / 插件广场 / 模型中心”。
@@ -31,5 +31,10 @@
 - [27-app-count-section-before-heading.png](27-app-count-section-before-heading.png)：专家与工作流数量区域添加“智能应用”标题前的参考截图。
 - [28-overview-before-token-metric.png](28-overview-before-token-metric.png)：新增第三组 Token 消耗前的参考截图，时间单位随后统一为“日”。
 - [29-overview-before-shared-height-adaptation.png](29-overview-before-shared-height-adaptation.png)：动态适配修正前，应用概况单独拉伸、统计标题和数值距离较大。
+- [30-resource-heading-before-rename.png](30-resource-heading-before-rename.png)：2026-11-02 标题改为“能力与资源”并收紧下方范围文字间距前的参考截图。
+- [31-scope-hover-before-contrast-fix.png](31-scope-hover-before-contrast-fix.png)：范围切换悬停对比度修正前，未选中项后改为蓝字浅蓝底，选中项保持蓝底白字。
+- [32-resource-scope-before-inline.png](32-resource-scope-before-inline.png)：范围文字移至“能力与资源”标题后方前的参考截图。
+- [33-section-heading-size-reference.png](33-section-heading-size-reference.png)：高级功能与能力资源标题字号统一前的参考截图。
+- [34-entry-button-before-short-label.png](34-entry-button-before-short-label.png)：介绍页进入按钮精简前，现统一显示“进入”，跳转逻辑不变。
 
 侧边栏截图用于讨论信息架构；其中的入口名称不能单独作为生产服务已上线的证据。现有平台能力以 `D:\CodingWorkSpace\wanwu\wanwu-web` 和 `D:\CodingWorkSpace\wanwu\wanwu` 源码为准。

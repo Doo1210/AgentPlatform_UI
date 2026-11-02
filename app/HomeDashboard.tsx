@@ -1,7 +1,8 @@
 "use client";
 
 import { useLayoutEffect, useRef, useState } from "react";
-import type { FeatureId } from "./FeatureIntroduction";
+import { advancedFeatures, type FeatureId } from "./FeatureIntroduction";
+import { MachineLicense } from "./MachineLicense";
 import {
   Activity,
   ArrowRight,
@@ -11,13 +12,11 @@ import {
   CheckCircle2,
   ChevronRight,
   CircleDot,
-  Code2,
   Database,
   GitFork,
   History,
   LayoutDashboard,
   Network,
-  PanelsTopLeft,
   ScanEye,
   Sparkles,
   Workflow,
@@ -140,7 +139,7 @@ export function HomeDashboard({
   onNavigate,
   onOpenPlatform,
   onEnterPlatform,
-  highCodeStatus,
+  featureStatuses,
   onOpenFeature,
   onReturnLegacy,
 }: {
@@ -150,7 +149,7 @@ export function HomeDashboard({
   onNavigate: (label: string) => void;
   onOpenPlatform: (id: PlatformId) => void;
   onEnterPlatform: (id: PlatformId) => void;
-  highCodeStatus: PlatformStatus;
+  featureStatuses: Record<FeatureId, PlatformStatus>;
   onOpenFeature: (id: FeatureId) => void;
   onReturnLegacy: () => void;
 }) {
@@ -215,10 +214,10 @@ export function HomeDashboard({
 
   return (
     <div className="home-page" ref={overviewRef}>
-      <section className="overview-hero" aria-label="平台总览"><div className="overview-hero-copy"><span className="overview-eyebrow">元景·万悟工业智能体平台</span><div className="overview-title-row"><h2>连接专业能力，让智能应用落地。</h2><button className="home-version-switch" onClick={onReturnLegacy} title="切换到旧版页面（原型）"><History size={13} />返回旧版</button></div></div></section>
+      <section className="overview-hero" aria-label="平台总览"><div className="overview-hero-copy"><span className="overview-eyebrow">元景·万悟工业智能体平台</span><div className="overview-title-row"><h2>连接专业能力，让智能应用落地。</h2><div className="overview-header-actions">{role === "system" && <MachineLicense />}<button className="home-version-switch" onClick={onReturnLegacy} title="切换到旧版页面（原型）"><History size={13} />返回旧版</button></div></div></div></section>
       <div className="home-core-area">
         <section className="home-work-panel" aria-labelledby="home-work-title">
-          <div className="home-panel-head"><div className="home-overview-title"><h1 id="home-work-title">应用概况</h1>{canSwitchScope && <div className="home-scope-switch" role="group" aria-label="应用概况与可用资源统计范围">{[{ value: "all", label: allScopeLabel }, { value: "personal", label: "个人" }].map(item => <button key={item.value} aria-pressed={scope === item.value} aria-controls="home-work-metrics home-resource-stats" onClick={() => setSelectedScope(item.value as "all" | "personal")}>{item.label}</button>)}</div>}</div></div>
+          <div className="home-panel-head"><div className="home-overview-title"><h1 id="home-work-title">应用概况</h1>{canSwitchScope && <div className="home-scope-switch" role="group" aria-label="应用概况及能力与资源的统计范围">{[{ value: "all", label: allScopeLabel }, { value: "personal", label: "个人" }].map(item => <button key={item.value} aria-pressed={scope === item.value} aria-controls="home-work-metrics home-resource-stats" onClick={() => setSelectedScope(item.value as "all" | "personal")}>{item.label}</button>)}</div>}</div></div>
           <div className="home-statistics-body" id="home-work-metrics">
             <section className="home-statistics-group home-app-group" aria-labelledby="home-inventory-title">
               <h2 id="home-inventory-title" className="home-inventory-heading">智能应用</h2>
@@ -239,18 +238,14 @@ export function HomeDashboard({
         </section>
 
       <section className="home-resources" aria-labelledby="home-resources-title">
-        <div className="home-resources-title"><div><h2 id="home-resources-title">可用资源</h2></div><span>{scopeLabel}</span></div>
+        <div className="home-resources-title"><div><h2 id="home-resources-title">能力与资源</h2></div><span>{scopeLabel}</span></div>
         <div className="home-resource-grid" id="home-resource-stats">{resources.map((item) => { const Icon = item.icon; return <button key={item.label} onClick={() => onNavigate(item.destination)}><span className="home-resource-icon"><Icon size={17} /></span><span>{item.label}</span><strong>{formatCount(item.count)}</strong><ChevronRight size={14} /></button>; })}</div>
       </section>
       </div>
 
       <section className="home-advanced-services" aria-labelledby="home-advanced-title">
         <h2 id="home-advanced-title">高级功能</h2>
-        <div className="home-advanced-grid">
-          <button onClick={() => onOpenFeature("runtime")}><Box size={20} /><span><strong>智能体运行时 <small>{statusContent[highCodeStatus]}</small></strong><span>部署和管理高代码智能体</span></span><ArrowRight size={15} /></button>
-          <button onClick={() => onOpenFeature("sdk")}><Code2 size={20} /><span><strong>软件开发套件</strong><span>开发指南与代码集成示例</span></span><ArrowRight size={15} /></button>
-          <button onClick={() => onOpenFeature("lowcode")}><PanelsTopLeft size={20} /><span><strong>低代码 UI</strong><span>构建业务界面，绑定多个工作流</span></span><ArrowRight size={15} /></button>
-        </div>
+        <div className="home-advanced-grid">{advancedFeatures.map(feature => { const Icon = feature.icon; return <button key={feature.id} onClick={() => onOpenFeature(feature.id)}><Icon size={20} /><span><strong>{feature.title} <small>{featureStatuses[feature.id] === "active" ? "已开通" : "未开通"}</small></strong><span>{feature.label}</span></span><ArrowRight size={15} /></button>; })}</div>
       </section>
 
       <section className="home-platforms" aria-labelledby="home-platforms-title">

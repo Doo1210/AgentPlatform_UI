@@ -234,7 +234,7 @@ export function LowCodeWorkspace() {
   };
 
   return <div className="module-workspace lowcode-workspace">
-    <div className="module-heading"><div className="module-heading-icon"><Workflow size={24} /></div><div><span className="home-eyebrow">INTELLIGENT APPLICATIONS</span><h1>低代码 UI</h1><p>设计面向业务人员的界面，一个界面应用可绑定多个工作流。</p></div></div>
+    <div className="module-heading"><div className="module-heading-icon"><Workflow size={24} /></div><div><span className="home-eyebrow">INTELLIGENT APPLICATIONS</span><h1>低代码 UI 开发</h1><p>设计面向业务人员的界面，一个界面应用可绑定多个工作流。</p></div></div>
     <div className="lowcode-columns">
       <section className="lowcode-app-list" aria-label="界面应用列表">
         <div className="lowcode-section-head"><div><span>界面应用</span><strong>{apps.length}</strong></div><button aria-label="创建界面应用" onClick={() => setCreating(true)}><Plus size={16} /></button></div>

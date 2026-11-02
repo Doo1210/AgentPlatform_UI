@@ -26,7 +26,7 @@
 .home-page .home-panel-head h1 { color: #ffffff; }
 .home-overview-title { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 18px; }.home-panel-head h1 { margin: 0; font-size: 18px; line-height: 1.5; letter-spacing: -.025em; }
 .home-scope-switch { display: inline-flex; align-items: center; gap: 3px; padding: 3px; border: 1px solid #ffffff66; border-radius: 7px; background: #ffffff1f; }
-.home-scope-switch button { min-height: 26px; padding: 3px 12px; border: 0; border-radius: 4px; color: #f1f6ff; background: transparent; font-size: 12px; }.home-scope-switch button[aria-pressed="true"] { color: #074ce0; background: #fff; }.home-scope-switch button:hover:not([aria-pressed="true"]) { color: #fff; background: #ffffff26; }
+.home-scope-switch button { min-height: 26px; padding: 3px 12px; border: 0; border-radius: 4px; color: #f1f6ff; background: transparent; font-size: 12px; }.home-scope-switch button[aria-pressed="true"] { color: #074ce0; background: #fff; }.home-scope-switch button:hover:not([aria-pressed="true"]) { color: #074ce0; background: #e8f0ff; }
 .home-overview-actions { flex-shrink: 0; }.home-version-switch { display: inline-flex; align-items: center; gap: 6px; padding: 5px 0 5px 8px; min-height: 30px; border: 0; color: #edf4ff; background: transparent; font-size: 11px; }.home-version-switch:hover { color: #fff; text-decoration: underline; text-underline-offset: 4px; }
 .home-page .home-panel-head button:focus-visible { outline-color: #fff; }
 .home-work-panel button:focus-visible { outline-color: #074ce0; }
@@ -56,7 +56,11 @@
 .home-range-switch button.active::after { content: ""; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; border-radius: 2px; background: #074ce0; }
 .home-usage-metrics { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }.home-usage-metrics > div { display: flex; flex-wrap: wrap; align-content: center; align-items: baseline; gap: 8px 5px; }.home-usage-metrics span { flex-basis: 100%; color: var(--dp-color-ink-secondary); font-size: 13px; }.home-usage-metrics strong { color: #074ce0; font-size: 43px; line-height: 1.1; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }.home-usage-metrics small { font-size: 11px; color: #6b7280; }
 .home-resources { display: grid; grid-template-columns: 140px minmax(0, 1fr); align-items: center; padding: 19px 26px; border-top: 1px solid #dce7f5; border-radius: 0 0 15px 15px; background: transparent; }
-.home-resources-title h2 { margin: 0 0 7px; color: #2d4e77; font-size: 16px; letter-spacing: -.025em; }.home-resources-title .home-eyebrow { display: none; }.home-resources-title > span { font-size: 11px; color: #6b819e; }
+.home-page .home-resources { grid-template-columns: max-content minmax(0, 1fr); column-gap: 18px; }
+.home-page .home-resources-title { display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 8px; }
+.home-page .home-resources-title h2, .home-page .home-resources-title > span { white-space: nowrap; }
+@media (max-width: 760px) { .home-page .home-resources { grid-template-columns: 1fr; column-gap: 0; } }
+.home-resources-title h2 { margin: 0; color: #2d4e77; font-size: 16px; line-height: 1.25; letter-spacing: -.025em; }.home-resources-title .home-eyebrow { display: none; }.home-resources-title > span { font-size: 11px; line-height: 1.3; color: #6b819e; }
 .home-resource-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .home-resource-grid button { min-width: 0; min-height: 48px; padding: 0 18px; border: 0; border-left: 1px solid #dce7f5; display: flex; align-items: center; gap: 9px; color: #454c58; background: transparent; font-size: 13px; text-align: left; transition: background 160ms ease-out; }.home-resource-grid button:last-child { padding-right: 0; }.home-resource-grid button:hover { color: #2d63bd; background: #eaf3ff; }.home-resource-icon { width: 30px; height: 30px; display: grid; place-items: center; border: 1px solid #dbe8fa; border-radius: 8px; color: #2d63bd; background: #edf4ff; flex-shrink: 0; }.home-resource-grid strong { margin-left: auto; font-size: 27px; color: #31537f; line-height: 1; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }.home-resource-grid button > svg:last-child { width: 13px; color: #839bb9; flex-shrink: 0; }
 .home-advanced-services { display: grid; grid-template-columns: 140px minmax(0, 1fr); align-items: center; padding: 15px 26px; border: 1px solid #dfe8f6; border-radius: 12px; background: linear-gradient(100deg, #f8faff, #f4f8ff 55%, #f9fbff); box-shadow: 0 3px 12px #16191f02; }
@@ -201,7 +205,8 @@
 /* Compact desktop overview; engines anchor the bottom. */
 .home-page .home-panel-head h1 { color:#16191f; }
 .home-page .home-advanced-services { background:#f3f4f6; border:1px solid #dde0e6; box-shadow:none; padding:14px 20px; }
-.home-page .home-advanced-services h2,.home-page .home-advanced-grid strong { color:#454c58; font-size:13px; }
+.home-page .home-advanced-services h2 { color:#454c58; font-size:16px; line-height:1.25; }
+.home-page .home-advanced-grid strong { color:#454c58; font-size:13px; }
 .home-page .home-advanced-grid > button { color:#454c58; border-color:#dde0e6; }
 .home-page .home-advanced-grid > button > span > span { color:#454c58; font-size:11px; }
 .home-page .home-advanced-grid small { color:#454c58; border-color:#c8cdd6; }
@@ -272,6 +277,48 @@
 .home-page .overview-hero-copy { display:flex; flex-direction:column; align-items:stretch; gap:10px; }
 .home-page .overview-eyebrow { font-size:14px; line-height:1.5; }
 .overview-title-row { display:flex; align-items:center; justify-content:space-between; gap:20px; }
+.overview-header-actions, .machine-license-tools { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+.machine-license-tools.with-reminder { gap:0; padding:1px 3px; border:1px solid #f1e8d8; border-radius:6px; background:#fffbf3; color:#806a47; }
+.machine-license-tools.with-reminder.expired { color:#b42318; border-color:#f3dcd8; background:#fff6f5; }
+.machine-license-reminder { display:flex; align-items:center; gap:5px; padding:0; color:inherit; }
+.machine-license-reminder-link, .machine-license-dismiss, .machine-license-icon, .machine-license-close { display:inline-flex; align-items:center; justify-content:center; border:0; background:transparent; color:inherit; cursor:pointer; }
+.machine-license-reminder-link { gap:4px; padding:0; font-size:11px; line-height:18px; text-align:left; }
+.machine-license-reminder-link strong { color:#a86c16; font-weight:600; font-variant-numeric:tabular-nums; }
+.machine-license-reminder-link svg { flex-shrink:0; }
+.machine-license-dismiss { position:relative; width:20px; height:20px; border-radius:4px; color:#a09582; }
+.machine-license-tooltip { position:absolute; top:calc(100% + 7px); right:0; z-index:20; padding:5px 8px; border-radius:4px; background:#263244; color:white; font-size:11px; font-weight:400; line-height:16px; white-space:nowrap; pointer-events:none; visibility:hidden; opacity:0; transition:opacity 80ms ease; }
+.machine-license-dismiss:hover .machine-license-tooltip, .machine-license-dismiss:focus-visible .machine-license-tooltip { visibility:visible; opacity:1; }
+.machine-license-dismiss:hover { color:#806a47; background:#f4ecdd; }
+.machine-license-icon { position:relative; width:26px; height:26px; border-radius:4px; color:#64748b; }
+.machine-license-icon:hover { color:#074ce0; background:#edf3ff; }
+.machine-license-tools.with-reminder .machine-license-icon { width:24px; height:22px; margin-right:2px; border-radius:4px; color:#a86c16; }
+.machine-license-tools.with-reminder .machine-license-icon:hover { background:#f4ecdd; }
+.machine-license-tools.with-reminder.expired .machine-license-icon, .machine-license-tools.with-reminder.expired .machine-license-dismiss { color:inherit; }
+.machine-license-dot { position:absolute; top:4px; right:3px; width:5px; height:5px; border-radius:50%; background:#d49a28; border:1px solid white; }
+.machine-license-dialog { position:fixed; inset:0; margin:auto; box-sizing:border-box; width:min(520px, calc(100vw - 32px)); max-height:calc(100dvh - 40px); overflow:auto; padding:24px; border:1px solid #e0e5ed; border-radius:12px; color:#263244; background:white; }
+.machine-license-dialog::backdrop { background:rgb(15 23 42 / 35%); }
+.machine-license-dialog-head { display:flex; justify-content:space-between; gap:16px; align-items:flex-start; }
+.home-page .overview-title-row .machine-license-dialog h2 { margin:0; font-size:20px; font-weight:600; color:#263244; }
+.machine-license-dialog-head p, .machine-license-help { margin:8px 0 16px; color:#728094; font-size:12px; line-height:1.6; }
+.machine-license-close { width:28px; height:28px; border-radius:4px; color:#728094; }
+.machine-license-summary { display:flex; align-items:center; gap:12px; background:#f7f9fc; border-radius:8px; padding:14px 16px; color:#15803d; }
+.machine-license-summary > svg { flex-shrink:0; }.machine-license-summary.needs-attention { color:#996616; }
+.machine-license-summary span { font-size:12px; font-weight:600; }
+.machine-license-summary p { margin:0; color:#728094; font-size:11px; line-height:1.6; font-variant-numeric:tabular-nums; }
+.machine-license-summary span + p { margin-top:5px; }
+.machine-license-form { display:grid; gap:20px; margin-top:24px; }
+.machine-license-form .machine-license-help { margin:7px 0 0; }
+.machine-license-label { display:block; margin-bottom:8px; font-size:13px; font-weight:500; }
+.machine-license-code { display:flex; border:1px solid #dce2eb; border-radius:6px; overflow:hidden; }
+.machine-license-code input { width:100%; min-width:0; border:0; padding:10px 12px; font-family:monospace; font-size:13px; background:#fafbfc; }
+.machine-license-code button { display:flex; align-items:center; gap:6px; flex-shrink:0; border:0; border-left:1px solid #dce2eb; padding:0 12px; color:#52647b; background:white; cursor:pointer; }
+.machine-license-dialog textarea { box-sizing:border-box; width:100%; padding:10px 12px; resize:vertical; border:1px solid #dce2eb; border-radius:6px; font:inherit; font-size:13px; }
+.machine-license-feedback { color:#52647b; font-size:12px; line-height:1.6; }.machine-license-feedback:empty { display:none; }
+.machine-license-dialog-footer { display:flex; justify-content:flex-end; gap:10px; margin-top:20px; padding-top:16px; border-top:1px solid #edf0f5; }
+.machine-license-dialog-footer button { border:1px solid #dce2eb; border-radius:6px; padding:8px 16px; background:white; color:#52647b; font-size:13px; cursor:pointer; }.machine-license-dialog-footer button.primary { background:#074ce0; border-color:#074ce0; color:white; }.machine-license-dialog-footer button:disabled { opacity:.45; cursor:not-allowed; }
+.machine-license-tools button:focus-visible, .machine-license-dialog :is(button, input, textarea):focus-visible { outline:2px solid #074ce0; outline-offset:3px; }
+@media(max-width:1250px) { .home-page .overview-title-row { flex-wrap:wrap; gap:6px; }.overview-header-actions { margin-left:auto; } }
+@media(max-width:600px) { .overview-header-actions { width:100%; justify-content:flex-end; flex-wrap:wrap; gap:6px; }.machine-license-tools { gap:6px; min-width:0; }.machine-license-reminder-link { font-size:10px; }.machine-license-dialog { padding:18px; } }
 .home-page .overview-title-row h2 { margin:0; }
 .overview-title-row .home-version-switch { flex-shrink:0; min-height:32px; padding:6px 0 6px 8px; border:0; border-radius:0; background:transparent; color:#64748b; }
 .overview-title-row .home-version-switch:hover { color:#074ce0; background:transparent; }
@@ -352,3 +399,8 @@
   .home-page[data-overview-fit="dense"] .platform-card-action { min-height: 24px; margin-top: 5px; }
   .home-page[data-overview-fit="dense"] .platform-card-icon { width: 26px; height: 26px; }
 }
+/* Four independently activated advanced capabilities. */
+.home-page .home-advanced-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.home-page .home-advanced-grid > button { gap: 8px; padding-left: 12px; padding-right: 12px; }
+@media (max-width: 1180px) { .home-page .home-advanced-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 0; } }
+@media (max-width: 760px) { .home-page .home-advanced-grid { grid-template-columns: 1fr; } }

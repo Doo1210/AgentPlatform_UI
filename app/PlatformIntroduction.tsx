@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ChevronLeft, ArrowRight, BadgeCheck, CheckCircle2, Clock3, Database, Expand, FileText, Network, Workflow, X } from "lucide-react";
+import { ChevronLeft, ArrowRight, BadgeCheck, CheckCircle2, Database, Expand, FileText, Network, Workflow, X } from "lucide-react";
 import type { IndustrialPlatform, PlatformId, PlatformStatus } from "./HomeDashboard";
 
-export type PlatformApplication = { applicant: string; contact: string; purpose: string; submittedAt: string };
+
 
 const stories: Record<PlatformId, {
   headline: string; features: string[]; metrics: [string, string][]; previewTitle: string;
@@ -71,41 +71,30 @@ function Preview({ platform }: { platform: IndustrialPlatform }) {
   </div>;
 }
 
-export function PlatformIntroduction({ platform, status, canActivate, organization, application, onBack, onRequest, onActivate, onEnter }: {
-  platform: IndustrialPlatform; status: PlatformStatus; canActivate: boolean; organization: string; application?: PlatformApplication;
-  onBack: () => void; onRequest: (application: PlatformApplication) => void; onActivate: () => void; onEnter: () => void;
+export function PlatformIntroduction({ platform, status, organization, onBack, onActivate, onEnter }: {
+  platform: IndustrialPlatform; status: PlatformStatus; organization: string;
+  onBack: () => void; onActivate: () => void; onEnter: () => void;
 }) {
   const story = stories[platform.id];
   const Icon = platform.icon;
-  const [modal, setModal] = useState<"application" | "preview" | null>(null);
+  const [modal, setModal] = useState<"preview" | null>(null);
+  const [justActivated, setJustActivated] = useState(false);
   const dialog = useRef<HTMLDialogElement>(null);
-  const [applicant, setApplicant] = useState("林雨晴");
-  const [contact, setContact] = useState("");
-  const [purpose, setPurpose] = useState("");
-  useEffect(() => {
-    if (modal) dialog.current?.showModal();
-    else dialog.current?.close();
-  }, [modal]);
-  const statusLabel = status === "active" ? "已开通" : status === "pending" ? "审批中" : "未开通";
-  const action = () => status === "active" ? onEnter() : setModal("application");
-  const actions = <>
-    <button className="home-button primary" onClick={action}>{status === "active" ? "进入平台" : status === "pending" ? "查看申请" : "申请开通"}<ArrowRight size={16} /></button>
-    {status === "pending" && canActivate && <button className="pi-approval-button" onClick={onActivate}>模拟审批通过</button>}
-  </>;
+  useEffect(() => { if (modal) dialog.current?.showModal(); else dialog.current?.close(); }, [modal]);
+  const statusLabel = status === "active" ? "已开通" : "未开通";
+  const actions = <button className="home-button primary" onClick={() => { if (status === "active") onEnter(); else { onActivate(); setJustActivated(true); } }}>{status === "active" ? "进入" : "立即开通"}<ArrowRight size={16} /></button>;
   return <div className="platform-intro-page pi-page">
     <header className="pi-topbar"><div className="pi-banner-inner"><button className="intro-back" onClick={onBack}><ChevronLeft size={20} />返回总览</button><div className="pi-banner-platform"><span className="pi-banner-logo"><Icon size={22} /></span><h1>{platform.title}</h1><span className={`platform-status ${status}`}>{statusLabel}</span></div><div className="pi-banner-actions">{actions}</div></div></header>
     <section className="pi-hero">
-      <div className="pi-hero-copy"><span className="pi-platform-label">工业能力 · 按需接入</span><h2>{story.headline}</h2><p>{platform.summary}</p><div className="pi-keywords">{platform.keywords.map(item => <span key={item}>{item}</span>)}</div><div className="pi-hero-note">{status === "active" ? "开通范围：" + organization : status === "pending" ? "申请已提交，等待审核" : "按组织申请，审核通过后使用"}</div></div>
+      <div className="pi-hero-copy"><span className="pi-platform-label">工业能力 · 按需接入</span><h2>{story.headline}</h2><p>{platform.summary}</p><div className="pi-keywords">{platform.keywords.map(item => <span key={item}>{item}</span>)}</div><div className="pi-hero-note">{justActivated ? "开通成功，可进入平台。刷新后恢复默认开通状态。" : status === "active" ? "开通范围：" + organization : "点击立即开通，开启本次会话演示。"}</div></div>
       <figure className="pi-hero-visual"><Preview platform={platform} /><figcaption><span>平台工作台预览 · 模拟界面</span><button onClick={() => setModal("preview")}><Expand size={13} />放大查看</button></figcaption></figure>
     </section>
     <section className="pi-features" aria-labelledby="pi-features-heading"><div className="pi-section-heading"><h2 id="pi-features-heading">这个平台可以做什么</h2><span>围绕工业现场，组织专业能力</span></div><div className="pi-feature-grid">{platform.features.map((feature, index) => { const FeatureIcon = [Database, Network, Workflow][index]; return <article key={feature}><FeatureIcon size={22} /><h3>{feature}</h3><p>{story.features[index]}</p></article>; })}</div></section>
     <section className="pi-collaboration" aria-labelledby="pi-collaboration-heading"><div className="pi-section-heading"><div><span className="pi-eyebrow">连接专家与工作流</span><h2 id="pi-collaboration-heading">从专业能力，到业务行动</h2></div><span className="pi-planning-badge">协同方案示例</span></div><div className="pi-flow"><div><Icon size={21} /><strong>{story.source}</strong><span>{platform.title}</span></div><ArrowRight size={20} /><div><BadgeCheck size={21} /><strong>专家分析 · 工作流处理</strong><span>结合知识与工具组织业务步骤</span></div><ArrowRight size={20} /><div><CheckCircle2 size={21} /><strong>交给业务人员处理</strong><span>{story.result}</span></div></div><div className="pi-collaboration-details"><div><h3>专家如何使用</h3><p>{story.expert}</p></div><div><h3>工作流如何使用</h3><p>{story.workflow}</p></div></div><p className="pi-integration-note">以上为拟议协同方式；实际可用能力以平台接入与授权配置为准。</p></section>
-    <div className="pi-lower-grid"><section className="pi-scenarios" aria-labelledby="pi-scenarios-heading"><div className="pi-section-heading"><h2 id="pi-scenarios-heading">适合哪些业务场景</h2></div>{story.scenarios.map(item => <article key={item.title}><h3>{item.title}</h3><p>{item.problem}</p><div><ArrowRight size={15} /><span>{item.solution}</span></div></article>)}</section><aside className="pi-onboarding"><span className="pi-eyebrow">按需接入</span><h2>开通与使用</h2><ol><li><span>1</span><div><strong>提交组织申请</strong><p>填写业务用途与联系方式，申请范围为 {organization}。</p></div></li><li><span>2</span><div><strong>等待审核与配置</strong><p>审核通过后，按需完成数据连接和成员授权。</p></div></li><li><span>3</span><div><strong>进入平台工作台</strong><p>从总览卡片进入专属导航，使用专业功能。</p></div></li></ol><div className="pi-onboarding-note"><FileText size={16} /><p>当前为交互原型，申请和审批仅在当前会话中模拟，不会发送真实开通请求。</p></div></aside></div>
-    <dialog aria-labelledby="pi-dialog-title" ref={dialog} className={`pi-dialog ${modal === "preview" ? "pi-dialog-preview" : ""}`} onCancel={() => setModal(null)}>
-      <div className="pi-dialog-head"><div><span className="pi-eyebrow">{modal === "preview" ? "模拟界面" : status === "pending" ? "组织开通申请" : "按组织开通"}</span><h2 id="pi-dialog-title">{modal === "preview" ? platform.title + "预览" : status === "pending" ? "申请已提交" : "申请开通" + platform.title}</h2></div><button aria-label="关闭弹窗" onClick={() => setModal(null)}><X size={20} /></button></div>
-      {modal === "preview" ? <Preview platform={platform} /> : status === "pending" ? <div className="pi-application-summary"><p role="status"><Clock3 size={18} />审批中，请等待管理员审核。</p><dl><div><dt>申请组织</dt><dd>{organization}</dd></div><div><dt>申请人</dt><dd>{application?.applicant ?? "林雨晴"}</dd></div><div><dt>联系方式</dt><dd>{application?.contact ?? "未记录"}</dd></div><div><dt>业务用途</dt><dd>{application?.purpose ?? "原型示例申请"}</dd></div><div><dt>提交时间</dt><dd>{application ? new Date(application.submittedAt).toLocaleString("zh-CN", { timeZone: "Asia/Shanghai" }) : "当前会话"}</dd></div></dl><small>原型演示申请，尚未接入真实审批服务。</small><button className="home-button primary" onClick={() => setModal(null)}>知道了</button></div> : <form className="pi-application-form" onSubmit={event => { event.preventDefault(); if (!applicant.trim() || !contact.trim() || !purpose.trim()) return; onRequest({ applicant: applicant.trim(), contact: contact.trim(), purpose: purpose.trim(), submittedAt: new Date().toISOString() }); }}>
-        <label>申请组织<input value={organization} readOnly /></label><div className="pi-form-pair"><label>申请人<input required maxLength={40} value={applicant} onChange={event => setApplicant(event.target.value)} autoComplete="name" /></label><label>联系方式<input required maxLength={100} value={contact} onChange={event => setContact(event.target.value)} placeholder="手机号或邮箱" /></label></div><label>业务用途<textarea required maxLength={500} rows={4} value={purpose} onChange={event => setPurpose(event.target.value)} placeholder="说明希望解决的问题、适用场景与使用范围" /></label><p>提交后状态变为“审批中”，审核通过后开放平台入口。本次提交仅用于原型演示。</p><div className="pi-form-actions"><button type="button" className="home-button secondary" onClick={() => setModal(null)}>取消</button><button type="submit" className="home-button primary">提交申请<ArrowRight size={15} /></button></div>
-      </form>}
+    <div className="pi-lower-grid"><section className="pi-scenarios" aria-labelledby="pi-scenarios-heading"><div className="pi-section-heading"><h2 id="pi-scenarios-heading">适合哪些业务场景</h2></div>{story.scenarios.map(item => <article key={item.title}><h3>{item.title}</h3><p>{item.problem}</p><div><ArrowRight size={15} /><span>{item.solution}</span></div></article>)}</section><aside className="pi-onboarding"><span className="pi-eyebrow">按需接入</span><h2>开通与使用</h2><ol><li><span>1</span><div><strong>查看平台介绍</strong><p>了解功能与场景，当前组织为 {organization}。</p></div></li><li><span>2</span><div><strong>点击立即开通</strong><p>直接开通本次会话的功能，无需申请或审批。</p></div></li><li><span>3</span><div><strong>进入平台工作台</strong><p>从总览卡片进入专属导航，使用专业功能。</p></div></li></ol><div className="pi-onboarding-note"><FileText size={16} /><p>开通状态仅在当前页面会话有效，刷新恢复默认；不会发送真实开通请求。</p></div></aside></div>
+    <dialog aria-labelledby="pi-dialog-title" ref={dialog} className="pi-dialog pi-dialog-preview" onCancel={() => setModal(null)}>
+      <div className="pi-dialog-head"><div><span className="pi-eyebrow">模拟界面</span><h2 id="pi-dialog-title">{platform.title}预览</h2></div><button aria-label="关闭弹窗" onClick={() => setModal(null)}><X size={20} /></button></div>
+      <Preview platform={platform} />
     </dialog>
   </div>;
 }

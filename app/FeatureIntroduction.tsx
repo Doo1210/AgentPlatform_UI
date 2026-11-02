@@ -1,12 +1,26 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { ChevronLeft, ArrowRight, Box, CheckCircle2, Code2, FileCode2, Layers, PanelsTopLeft, Play, ShieldCheck, Terminal, Workflow, X } from "lucide-react";
+import { useState } from "react";
+import { ChevronLeft, ArrowRight, Box, CheckCircle2, Code2, FileCode2, Layers, PanelsTopLeft, Play, ShieldCheck, Terminal, Workflow, BarChart3 } from "lucide-react";
 import type { PlatformStatus } from "./HomeDashboard";
-import type { PlatformApplication } from "./PlatformIntroduction";
+import type { FeatureId } from "./demo-entitlements";
+export type { FeatureId } from "./demo-entitlements";
 
-export type FeatureId = "runtime" | "sdk" | "lowcode";
+
 const features = {
+  insights: {
+    title: "智能应用洞察", icon: BarChart3, label: "观测与质量", headline: "看清运行过程，持续改善应用效果。",
+    description: "围绕专家与工作流，查看执行链路、开展样本评测，并通过版本对比整理优化建议。",
+    audience: "应用开发人员 · 质量与运营人员", action: "进入应用洞察",
+    capabilities: [
+      { title: "观测执行过程", text: "查看模型、工具与工作流节点的执行情况和异常。", icon: Terminal },
+      { title: "评测应用质量", text: "通过样本和评测任务验证专家与工作流的输出。", icon: CheckCircle2 },
+      { title: "评优与改进", text: "比较版本表现，定位退化样本并整理改进方向。", icon: BarChart3 },
+    ],
+    steps: [["选择应用", "选择需要观测的专家或工作流。"], ["查看与评测", "检查运行记录，使用样本开展质量评测。"], ["比较与改进", "比较不同版本的效果，梳理优化建议。"]],
+    scenario: "改进设备故障诊断专家", scenarioText: "结合执行链路定位耗时步骤，再通过故障样本比较不同版本的诊断结果，整理知识召回和工具调用方面的改进建议。",
+    boundary: "观测、评测和评优覆盖专家及工作流；容器和镜像管理仍在智能体运行时。图表与结果均为模拟数据。",
+  },
   runtime: {
     title: "智能体运行时", icon: Box, label: "部署与托管", headline: "把代码交付为可运行的智能体服务。",
     description: "面向自定义代码开发的智能体，集中部署、管理运行实例与镜像，提供容器化运行环境。",
@@ -34,7 +48,7 @@ const features = {
     boundary: "当前展示接入方案与伪代码，不代表已有可下载 SDK、真实接口地址或已开放的生产 API。",
   },
   lowcode: {
-    title: "低代码 UI", icon: PanelsTopLeft, label: "业务界面搭建", headline: "一个业务界面，承载多个工作流。",
+    title: "低代码 UI 开发", icon: PanelsTopLeft, label: "业务界面搭建", headline: "一个业务界面，承载多个工作流。",
     description: "围绕业务人员的操作搭建界面，将查询、提交与复核等不同动作分别连接工作流。界面与工作流独立管理。",
     audience: "业务应用搭建人员 · 流程开发人员", action: "进入 UI 工作台",
     capabilities: [
@@ -48,40 +62,34 @@ const features = {
   },
 };
 
+export const advancedFeatures = (["runtime", "insights", "sdk", "lowcode"] as const).map(id => ({ id, ...features[id] }));
+
 function FeaturePreview({ id }: { id: FeatureId }) {
   const [language, setLanguage] = useState("Python");
+  const [insightTab, setInsightTab] = useState("观测");
   const [bindings, setBindings] = useState(["设备异常处置", "视觉质检复核"]);
   const [result, setResult] = useState("");
   const code = language === "Python" ? '# 调用结构示意，非可运行 SDK\nrequest = {\n  "target": "设备故障诊断专家",\n  "inputs": {"device": "AC-102"}\n}\n# 获取执行结果 → 回写业务系统' : '// 调用结构示意，非可运行 SDK\nconst request = {\n  target: "设备故障诊断专家",\n  inputs: { device: "AC-102" }\n};\n// 获取执行结果 → 回写业务系统';
-  return <div className="afi-preview"><div className="afi-preview-head"><span>{id === "runtime" ? "运行实例概览" : id === "sdk" ? "接入示例" : "设备运维工作台"}</span><small>交互示例</small></div>
-    {id === "runtime" ? <><div className="afi-instances">{[["设备数据处理 Agent", "v1.2 · Pods 2 / 2"], ["文档解析 Agent", "v2.0 · Pods 1 / 1"]].map(([name, detail]) => <div key={name}><Box size={18} /><span><strong>{name}</strong><small>{detail}</small></span><em>运行中</em></div>)}</div><div className="afi-terminal"><span>$ 查看部署日志 · 模拟</span><code>[09:42:11] 镜像已拉取<br />[09:42:13] 应用进程启动<br />[09:42:15] 就绪检查通过</code></div></> : id === "sdk" ? <><div className="afi-language" role="group" aria-label="代码示例语言">{["Python", "JavaScript"].map(item => <button key={item} aria-pressed={language === item} onClick={() => setLanguage(item)}>{item}</button>)}</div><pre className="afi-code"><code>{code}</code></pre><div className="afi-code-note">示意请求结构，需按实际接口文档实现。</div></> : <><div className="afi-ui-form"><label>设备编号<input readOnly value="AC-102 · 空压机" /></label><span>关联工作流（点击切换）</span><div className="afi-binding-options">{["设备异常处置", "视觉质检复核", "知识更新审核"].map(item => <button key={item} aria-pressed={bindings.includes(item)} onClick={() => { setBindings(items => items.includes(item) ? items.filter(value => value !== item) : [...items, item]); setResult(""); }}>{bindings.includes(item) ? <CheckCircle2 size={13} /> : <Workflow size={13} />}{item}</button>)}</div><button className="afi-run-example" disabled={bindings.length === 0} onClick={() => setResult(`已模拟提交，关联 ${bindings.length} 个工作流；未执行真实任务。`)}><Play size={13} />模拟提交</button><p role="status">{result || `当前关联 ${bindings.length} 个工作流`}</p></div></>}
+  return <div className="afi-preview"><div className="afi-preview-head"><span>{id === "runtime" ? "运行实例概览" : id === "sdk" ? "接入示例" : id === "insights" ? "智能应用洞察" : "设备运维工作台"}</span><small>交互示例</small></div>
+    {id === "insights" ? <><div className="afi-language" role="group" aria-label="洞察示例切换">{["观测", "评测", "评优"].map(tab => <button key={tab} aria-pressed={tab === insightTab} onClick={() => setInsightTab(tab)}>{tab}</button>)}</div><div className="afi-instances">{(insightTab === "观测" ? [["专家执行链", "模型 → 知识检索 → 工具调用"], ["工作流记录", "6 个节点 · 示例运行已完成"]] : insightTab === "评测" ? [["设备故障诊断评测", "42 个样本 · 示例任务"], ["质量复核工作流评测", "18 个场景 · 示例任务"]] : [["诊断专家版本对比", "v1.5 / v1.6 · 模拟对比"], ["检索改进建议", "6 个退化样本 · 示例建议"]]).map(([name, detail]) => <div key={name}><BarChart3 size={18} /><span><strong>{name}</strong><small>{detail}</small></span><em>示例</em></div>)}</div></> : id === "runtime" ? <><div className="afi-instances">{[["设备数据处理 Agent", "v1.2 · Pods 2 / 2"], ["文档解析 Agent", "v2.0 · Pods 1 / 1"]].map(([name, detail]) => <div key={name}><Box size={18} /><span><strong>{name}</strong><small>{detail}</small></span><em>运行中</em></div>)}</div><div className="afi-terminal"><span>$ 查看部署日志 · 模拟</span><code>[09:42:11] 镜像已拉取<br />[09:42:13] 应用进程启动<br />[09:42:15] 就绪检查通过</code></div></> : id === "sdk" ? <><div className="afi-language" role="group" aria-label="代码示例语言">{["Python", "JavaScript"].map(item => <button key={item} aria-pressed={language === item} onClick={() => setLanguage(item)}>{item}</button>)}</div><pre className="afi-code"><code>{code}</code></pre><div className="afi-code-note">示意请求结构，需按实际接口文档实现。</div></> : <><div className="afi-ui-form"><label>设备编号<input readOnly value="AC-102 · 空压机" /></label><span>关联工作流（点击切换）</span><div className="afi-binding-options">{["设备异常处置", "视觉质检复核", "知识更新审核"].map(item => <button key={item} aria-pressed={bindings.includes(item)} onClick={() => { setBindings(items => items.includes(item) ? items.filter(value => value !== item) : [...items, item]); setResult(""); }}>{bindings.includes(item) ? <CheckCircle2 size={13} /> : <Workflow size={13} />}{item}</button>)}</div><button className="afi-run-example" disabled={bindings.length === 0} onClick={() => setResult(`已模拟提交，关联 ${bindings.length} 个工作流；未执行真实任务。`)}><Play size={13} />模拟提交</button><p role="status">{result || `当前关联 ${bindings.length} 个工作流`}</p></div></>}
     <div className="afi-preview-note">原型模拟内容 · 不代表真实运行数据</div>
   </div>;
 }
 
-export function FeatureIntroduction({ id, organization, status, canActivate, canEnter, application, onBack, onEnter, onRequest, onActivate }: {
-  id: FeatureId; organization: string; status: PlatformStatus; canActivate: boolean; canEnter: boolean; application?: PlatformApplication;
-  onBack: () => void; onEnter: () => void; onRequest: (application: PlatformApplication) => void; onActivate: () => void;
+export function FeatureIntroduction({ id, organization, status, onBack, onEnter, onActivate }: {
+  id: FeatureId; organization: string; status: PlatformStatus;
+  onBack: () => void; onEnter: () => void; onActivate: () => void;
 }) {
   const feature = features[id];
   const Icon = feature.icon;
-  const isRuntime = id === "runtime";
-  const statusLabel = !isRuntime ? "可使用" : status === "active" ? "已开通" : status === "pending" ? "审批中" : "未开通";
-  const [requestOpen, setRequestOpen] = useState(false);
-  const dialog = useRef<HTMLDialogElement>(null);
-  const [purpose, setPurpose] = useState("");
-  const [contact, setContact] = useState("");
-  const [applicant, setApplicant] = useState("林雨晴");
-  useEffect(() => { if (requestOpen) dialog.current?.showModal(); else dialog.current?.close(); }, [requestOpen]);
-  const blocked = isRuntime && status === "active" && !canEnter;
+  const [justActivated, setJustActivated] = useState(false);
+  const enabled = status === "active";
   return <div className="pi-page afi-page">
-    <header className="pi-topbar"><div className="pi-banner-inner"><button className="intro-back" onClick={onBack}><ChevronLeft size={20} />返回总览</button><div className="pi-banner-platform"><span className="pi-banner-logo"><Icon size={22} /></span><h1>{feature.title}</h1><span className={`platform-status ${isRuntime ? status : "active"}`}>{statusLabel}</span></div><div className="pi-banner-actions"><button className="home-button primary" disabled={blocked} onClick={() => isRuntime && status !== "active" ? setRequestOpen(true) : onEnter()}>{blocked ? "需使用权限" : isRuntime && status === "available" ? "申请开通" : isRuntime && status === "pending" ? "查看申请" : feature.action}<ArrowRight size={15} /></button>{isRuntime && status === "pending" && canActivate && <button className="pi-approval-button" onClick={onActivate}>模拟审批通过</button>}</div></div></header>
-    <section className="afi-hero"><div><span className="afi-label">高级功能 / {feature.label}</span><h2>{feature.headline}</h2><p>{feature.description}</p><div className="afi-audience"><strong>适合谁使用</strong><span>{feature.audience}</span></div><div className="afi-access-note">{isRuntime ? blocked ? "服务已开通，请联系管理员获取使用权限。" : `${organization} · ${statusLabel} · 按组织申请` : "从顶部入口开始使用，进入现有功能工作区。"}</div></div><FeaturePreview id={id} /></section>
+    <header className="pi-topbar"><div className="pi-banner-inner"><button className="intro-back" onClick={onBack}><ChevronLeft size={20} />返回总览</button><div className="pi-banner-platform"><span className="pi-banner-logo"><Icon size={22} /></span><h1>{feature.title}</h1><span className={`platform-status ${enabled ? "active" : "available"}`}>{enabled ? "已开通" : "未开通"}</span></div><div className="pi-banner-actions"><button className="home-button primary" onClick={() => { if (enabled) onEnter(); else { onActivate(); setJustActivated(true); } }}>{enabled ? "进入" : "立即开通"}<ArrowRight size={15} /></button></div></div></header>
+    <section className="afi-hero"><div><span className="afi-label">高级功能 / {feature.label}</span><h2>{feature.headline}</h2><p>{feature.description}</p><div className="afi-audience"><strong>适合谁使用</strong><span>{feature.audience}</span></div><div className="afi-access-note" role="status">{justActivated ? "开通成功，导航入口已出现。刷新页面后恢复默认开通状态。" : `${organization} · ${enabled ? "已开通，可直接进入工作区" : "点击立即开通，即可演示使用流程"}`}</div></div><FeaturePreview id={id} /></section>
     <section className="afi-capabilities" aria-label="主要用途">{feature.capabilities.map(item => { const ItemIcon = item.icon; return <article key={item.title}><ItemIcon size={21} /><h3>{item.title}</h3><p>{item.text}</p></article>; })}</section>
     <section className="afi-start" aria-labelledby="afi-start-title"><div className="afi-section-head"><span>使用路径</span><h2 id="afi-start-title">从准备到使用，分三步完成</h2></div><ol>{feature.steps.map(([title, detail], index) => <li key={title}><span>{index + 1}</span><div><h3>{title}</h3><p>{detail}</p></div>{index < 2 && <ArrowRight size={18} />}</li>)}</ol></section>
-    <div className="afi-bottom-grid"><section className="afi-scenario"><span className="afi-label">典型场景 · 方案示例</span><h2>{feature.scenario}</h2><p>{feature.scenarioText}</p></section><aside className="afi-boundary"><h3>使用前需要了解</h3><p>{feature.boundary}</p><small>{isRuntime ? "申请、审批与运行数据仅在当前会话中演示，不会部署真实容器。" : "本页为原型演示，正式能力以接入与授权配置为准。"}</small></aside></div>
-    <dialog ref={dialog} className="pi-dialog" aria-labelledby="afi-request-title" onCancel={() => setRequestOpen(false)}><div className="pi-dialog-head"><div><span className="pi-eyebrow">智能体运行时 · 组织级服务</span><h2 id="afi-request-title">{status === "pending" ? "申请已提交" : "申请开通"}</h2></div><button aria-label="关闭申请弹窗" onClick={() => setRequestOpen(false)}><X size={20} /></button></div>
-      {status === "pending" ? <div className="pi-application-summary"><p role="status">审批中，请等待管理员审核。</p><dl>{[["组织", organization], ["申请人", application?.applicant ?? "林雨晴"], ["联系方式", application?.contact ?? "未记录"], ["业务用途", application?.purpose ?? "原型示例申请"], ["提交时间", application ? new Date(application.submittedAt).toLocaleString("zh-CN", { timeZone: "Asia/Shanghai" }) : "当前会话"]].map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl><small>仅用于演示，不会发送真实开通请求。</small><button className="home-button primary" onClick={() => setRequestOpen(false)}>知道了</button></div> : <form className="pi-application-form" onSubmit={event => { event.preventDefault(); if (applicant.trim() && purpose.trim() && contact.trim()) onRequest({ applicant: applicant.trim(), purpose: purpose.trim(), contact: contact.trim(), submittedAt: new Date().toISOString() }); }}><label>申请组织<input readOnly value={organization} /></label><div className="pi-form-pair"><label>申请人<input required maxLength={40} value={applicant} onChange={event => setApplicant(event.target.value)} /></label><label>联系方式<input required maxLength={100} placeholder="手机号或邮箱" value={contact} onChange={event => setContact(event.target.value)} /></label></div><label>业务用途<textarea required rows={4} maxLength={500} placeholder="描述智能体用途与托管需求" value={purpose} onChange={event => setPurpose(event.target.value)} /></label><p>审核通过后开放运行时入口。当前为原型模拟申请。</p><div className="pi-form-actions"><button className="home-button secondary" type="button" onClick={() => setRequestOpen(false)}>取消</button><button className="home-button primary" type="submit">提交申请<ArrowRight size={15} /></button></div></form>}
-    </dialog>
+    <div className="afi-bottom-grid"><section className="afi-scenario"><span className="afi-label">典型场景 · 方案示例</span><h2>{feature.scenario}</h2><p>{feature.scenarioText}</p></section><aside className="afi-boundary"><h3>使用前需要了解</h3><p>{feature.boundary}</p><small>开通状态仅保留在本次页面会话中，刷新恢复默认；不调用真实开通服务。</small></aside></div>
+
   </div>;
 }

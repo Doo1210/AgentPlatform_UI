@@ -13,7 +13,6 @@ import {
   ChevronLeft,
   ChevronRight,
   CircleHelp,
-  Code2,
   Cpu,
   Database,
   Eye,
@@ -38,7 +37,6 @@ import {
   PackageOpen,
   Paperclip,
   PanelLeft,
-  PanelsTopLeft,
   Pencil,
   Plus,
   RadioTower,
@@ -62,9 +60,10 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { HomeDashboard, IndustrialWorkspace, industrialPlatforms, type PlatformId, type PlatformStatus } from "./HomeDashboard";
-import { FeatureIntroduction, type FeatureId } from "./FeatureIntroduction";
-import { PlatformIntroduction, type PlatformApplication } from "./PlatformIntroduction";
+import { FeatureIntroduction, advancedFeatures, type FeatureId } from "./FeatureIntroduction";
+import { PlatformIntroduction } from "./PlatformIntroduction";
 import { LowCodeWorkspace, MainWorkspace } from "./MainWorkspaces";
+import { defaultFeatureStatuses, defaultPlatformStatuses, featureWorkspaceLabels } from "./demo-entitlements";
 import { LegacyPreview } from "./LegacyPreview";
 
 type Role = "system" | "org" | "operator" | "user";
@@ -75,6 +74,9 @@ type NavGroup = {
   items?: NavItem[];
   badge?: string;
 };
+
+const brandLogoSrc = `${import.meta.env.BASE_URL}wanwu-brand.png`;
+const organizationSwitchIconSrc = `${import.meta.env.BASE_URL}organization-switch.svg`;
 
 const primaryNav: NavGroup[] = [
   { label: "总览", icon: LayoutDashboard },
@@ -94,16 +96,10 @@ const businessNav: NavGroup[] = [
 
 const standaloneNav: NavGroup[] = [
   { label: "事件中心", icon: RadioTower },
-  { label: "智能应用洞察", icon: BarChart3 },
-];
-
-const advancedNav: NavItem[] = [
-  { label: "软件开发套件", icon: Code2 },
-  { label: "低代码 UI", icon: PanelsTopLeft },
 ];
 
 const capabilityNav: NavGroup = {
-  label: "能力中心",
+  label: "能力与资源",
   icon: Blocks,
   items: [
     { label: "模型中心", icon: Cpu },
@@ -141,7 +137,6 @@ const roleMenuDefaults: Record<Role, { operations: boolean; management: boolean 
 
 const organizations = ["--- 系统 ---", "测试", "测试 - 测试1", "测试 - 测试1 - 测试11"];
 const organizationLabel = (value: string) => value === organizations[0] ? "系统空间" : value.replaceAll(" - ", " / ");
-const unavailablePlatforms: Record<PlatformId, PlatformStatus> = { ontology: "available", vision: "available", timeseries: "available", design: "available" };
 
 const agents = [
   {
@@ -246,12 +241,10 @@ export default function Home() {
   const [assetType, setAssetType] = useState<AssetType>("专家");
   const [activeSecondary, setActiveSecondary] = useState<PlatformId | null>(null);
   const [organization, setOrganization] = useState(organizations[0]);
-  const [platformStatusesByOrg, setPlatformStatusesByOrg] = useState<Record<string, Record<PlatformId, PlatformStatus>>>({ [organizations[0]]: { ...unavailablePlatforms, ontology: "active", vision: "active" } });
-  const [platformApplications, setPlatformApplications] = useState<Record<string, PlatformApplication>>({});
-  const platformStatuses = platformStatusesByOrg[organization] ?? unavailablePlatforms;
-  const [highCodeStatusesByOrg, setHighCodeStatusesByOrg] = useState<Record<string, PlatformStatus>>({ [organizations[0]]: "active" });
-  const [highCodeApplications, setHighCodeApplications] = useState<Record<string, PlatformApplication>>({});
-  const highCodeStatus = highCodeStatusesByOrg[organization] ?? "available";
+  const [platformStatusesByOrg, setPlatformStatusesByOrg] = useState<Record<string, Record<PlatformId, PlatformStatus>>>({});
+  const platformStatuses = platformStatusesByOrg[organization] ?? defaultPlatformStatuses;
+  const [featureStatusesByOrg, setFeatureStatusesByOrg] = useState<Record<string, Record<FeatureId, PlatformStatus>>>({});
+  const featureStatuses = featureStatusesByOrg[organization] ?? defaultFeatureStatuses;
   const [mobileOpen, setMobileOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [navTooltip, setNavTooltip] = useState<{ label: string; top: number } | null>(null);
@@ -335,16 +328,8 @@ export default function Home() {
     setMobileOpen(false);
   };
 
-  const updateHighCodeStatus = (status: PlatformStatus) => {
-    if (status === "pending" && highCodeStatus !== "available") return;
-    if (status === "active" && (role !== "system" || highCodeStatus !== "pending")) return;
-    setHighCodeStatusesByOrg((byOrg) => ({ ...byOrg, [organization]: status }));
-  };
-
-  const enterHighCode = () => {
-    if (highCodeStatus === "active" && (role === "system" || role === "org")) selectPage("智能体运行时");
-  };
-
+  const activateFeature = (id: FeatureId) => setFeatureStatusesByOrg(byOrg => ({ ...byOrg, [organization]: { ...(byOrg[organization] ?? defaultFeatureStatuses), [id]: "active" } }));
+  const enterFeature = (id: FeatureId) => { if (featureStatuses[id] === "active") selectPage(featureWorkspaceLabels[id]); };
   const enterPlatform = (id: PlatformId) => {
     if (platformStatuses[id] !== "active") return;
     const platform = industrialPlatforms.find((item) => item.id === id)!;
@@ -355,15 +340,7 @@ export default function Home() {
     setMobileOpen(false);
   };
 
-  const updatePlatformStatus = (id: PlatformId, status: PlatformStatus) => {
-    if (status === "pending" && platformStatuses[id] !== "available") return;
-    if (status === "active" && (role !== "system" || platformStatuses[id] !== "pending")) return;
-    setPlatformStatusesByOrg((byOrg) => ({ ...byOrg, [organization]: { ...(byOrg[organization] ?? unavailablePlatforms), [id]: status } }));
-  };
-
-  const activatePlatform = (id: PlatformId) => {
-    updatePlatformStatus(id, "active");
-  };
+  const activatePlatform = (id: PlatformId) => setPlatformStatusesByOrg(byOrg => ({ ...byOrg, [organization]: { ...(byOrg[organization] ?? defaultPlatformStatuses), [id]: "active" } }));
 
   const cancelFlyoutClose = () => {
     if (flyoutCloseTimer.current) clearTimeout(flyoutCloseTimer.current);
@@ -408,8 +385,7 @@ export default function Home() {
   const isManagementSelected = (label: string) =>
     selected === label || managementItems[label]?.some((item) => item.label === selected);
 
-  const featureIntroId: FeatureId | null = selected === "service:intro:high-code" ? "runtime" : selected === "service:intro:sdk" ? "sdk" : selected === "service:intro:lowcode" ? "lowcode" : null;
-  const canManageHighCode = role === "system" || role === "org";
+  const featureIntroId: FeatureId | null = selected === "service:intro:high-code" ? "runtime" : selected === "service:intro:sdk" ? "sdk" : selected === "service:intro:lowcode" ? "lowcode" : selected === "service:intro:insights" ? "insights" : null;
   const activePlatform = activeSecondary ? industrialPlatforms.find((item) => item.id === activeSecondary) : null;
   const introPlatform = selected.startsWith("platform:intro:")
     ? industrialPlatforms.find((item) => item.id === selected.slice("platform:intro:".length))
@@ -426,12 +402,11 @@ export default function Home() {
       ((!nextMenus.management) ||
         (nextRole === "org" && selected !== "人员管理")) &&
       isManagementSelected("管理中心");
-    const losesHighCode = nextRole !== "system" && nextRole !== "org" && selected === "智能体运行时";
 
     setRole(nextRole);
     setShowPlatformOperations(nextMenus.operations);
     setShowManagementCenter(nextMenus.management);
-    if (losesPlatformOperations || losesManagementCenter || losesHighCode) {
+    if (losesPlatformOperations || losesManagementCenter) {
       setSelected("总览");
       setActiveSecondary(null);
     }
@@ -475,12 +450,11 @@ export default function Home() {
       >
         <div className="brand-row">
           <div className="brand-logo-image" role="img" aria-label="平台 Logo">
-            {/* The relative URL also resolves under the GitHub Pages /UI/ base path. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img className="brand-logo-full" src="wanwu-brand.png" alt="" />
+            <img className="brand-logo-full" src={brandLogoSrc} alt="" />
             <span className="brand-logo-mark" aria-hidden="true">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="wanwu-brand.png" alt="" />
+              <img src={brandLogoSrc} alt="" />
             </span>
           </div>
           <button className="mobile-close" aria-label="关闭导航" onClick={() => setMobileOpen(false)}><X size={18} /></button>
@@ -535,8 +509,7 @@ export default function Home() {
                 const Icon = item.icon;
                 return <button key={item.label} className={`nav-item nav-primary ${selected === item.label ? "active" : ""}`} data-nav-tooltip={item.label} aria-label={item.label} onClick={() => selectPage(item.label)}><Icon size={18} strokeWidth={1.9} /><span className="nav-label">{item.label}</span></button>;
               })}
-              {canManageHighCode && highCodeStatus === "active" && <button className={`nav-item nav-primary ${selected === "智能体运行时" ? "active" : ""}`} data-nav-tooltip="智能体运行时" aria-label="智能体运行时" onClick={() => selectPage("智能体运行时")}><Gauge size={18} strokeWidth={1.9} /><span className="nav-label">智能体运行时</span></button>}
-              {advancedNav.map((item) => { const Icon = item.icon; return <button key={item.label} className={`nav-item nav-primary ${selected === item.label ? "active" : ""}`} data-nav-tooltip={item.label} aria-label={item.label} onClick={() => selectPage(item.label)}><Icon size={18} strokeWidth={1.9} /><span className="nav-label">{item.label}</span></button>; })}
+              {advancedFeatures.filter(item => featureStatuses[item.id] === "active").map(item => { const Icon = item.icon; return <button key={item.id} className={`nav-item nav-primary ${selected === featureWorkspaceLabels[item.id] ? "active" : ""}`} data-nav-tooltip={item.title} aria-label={item.title} onClick={() => enterFeature(item.id)}><Icon size={18} strokeWidth={1.9} /><span className="nav-label">{item.title}</span></button>; })}
             </div>
           </nav>
         )}
@@ -560,9 +533,8 @@ export default function Home() {
               <button className={`profile-organization-switch ${organizationPickerOpen ? "active" : ""}`} aria-label={`切换组织，当前为${organizationLabel(organization)}`} aria-expanded={organizationPickerOpen} aria-controls="organization-popover" title={`切换组织：${organizationLabel(organization)}`} onClick={() => { setOrganizationPickerOpen((value) => !value); setUserMenuOpen(false); setFlyout(null); }}>
                   <span className="profile-organization-prefix">组织：</span>
                   <span className="profile-organization">{organizationLabel(organization)}</span>
-                  {/* The supplied SVG is a small local icon shared by both preview builds. */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="organization-switch.svg" alt="" width="12" height="12" />
+                  <img src={organizationSwitchIconSrc} alt="" width="12" height="12" />
               </button>
             </span>
             <button className={`profile-more ${userMenuOpen ? "active" : ""}`} aria-label="打开用户菜单" aria-expanded={userMenuOpen} aria-controls="user-account-menu" title="用户菜单" onClick={() => { setUserMenuOpen((value) => !value); setOrganizationPickerOpen(false); setFlyout(null); }}><MoreVertical size={17} aria-hidden="true" /></button>
@@ -638,10 +610,10 @@ export default function Home() {
 
       <main className="main-area">
         <section className="content">
-          {selected === "总览" ? <HomeDashboard key={`${organization}:${role}`} role={role} organization={organization} statuses={platformStatuses} onNavigate={selectPage} onOpenPlatform={openPlatform} onEnterPlatform={enterPlatform} highCodeStatus={highCodeStatus} onOpenFeature={openFeature} onReturnLegacy={() => { selectPage("总览"); setLegacyMode(true); window.scrollTo(0, 0); }} />
+          {selected === "总览" ? <HomeDashboard key={`${organization}:${role}`} role={role} organization={organization} statuses={platformStatuses} onNavigate={selectPage} onOpenPlatform={openPlatform} onEnterPlatform={enterPlatform} featureStatuses={featureStatuses} onOpenFeature={openFeature} onReturnLegacy={() => { selectPage("总览"); setLegacyMode(true); window.scrollTo(0, 0); }} />
             : selected === "资产广场" ? <Marketplace assetType={assetType} onTypeChange={setAssetType} />
-              : featureIntroId ? <FeatureIntroduction key={`${organization}:${featureIntroId}`} id={featureIntroId} organization={organizationLabel(organization)} status={highCodeStatus} application={highCodeApplications[organization]} canActivate={role === "system"} canEnter={canManageHighCode} onBack={() => selectPage("总览")} onRequest={(application) => { setHighCodeApplications(items => ({ ...items, [organization]: application })); updateHighCodeStatus("pending"); }} onActivate={() => updateHighCodeStatus("active")} onEnter={() => featureIntroId === "runtime" ? enterHighCode() : selectPage(featureIntroId === "sdk" ? "软件开发套件" : "低代码 UI")} />
-              : introPlatform ? <PlatformIntroduction key={`${organization}:${introPlatform.id}`} platform={introPlatform} status={platformStatuses[introPlatform.id]} organization={organizationLabel(organization)} application={platformApplications[`${organization}:${introPlatform.id}`]} canActivate={role === "system"} onBack={() => selectPage("总览")} onRequest={(application) => { setPlatformApplications((items) => ({ ...items, [`${organization}:${introPlatform.id}`]: application })); updatePlatformStatus(introPlatform.id, "pending"); }} onActivate={() => activatePlatform(introPlatform.id)} onEnter={() => enterPlatform(introPlatform.id)} />
+              : featureIntroId ? <FeatureIntroduction key={`${organization}:${featureIntroId}`} id={featureIntroId} organization={organizationLabel(organization)} status={featureStatuses[featureIntroId]} onBack={() => selectPage("总览")} onActivate={() => activateFeature(featureIntroId)} onEnter={() => enterFeature(featureIntroId)} />
+              : introPlatform ? <PlatformIntroduction key={`${organization}:${introPlatform.id}`} platform={introPlatform} status={platformStatuses[introPlatform.id]} organization={organizationLabel(organization)} onBack={() => selectPage("总览")} onActivate={() => activatePlatform(introPlatform.id)} onEnter={() => enterPlatform(introPlatform.id)} />
                 : activePlatform && activeSecondary !== "ontology" ? <IndustrialWorkspace platform={activePlatform} section={selected} />
                   : selected === "本体智能体" ? <OntologyAgentPage key={ontologyPageKey} />
                     : selected === "知识网络" ? <KnowledgeNetworkPage />
@@ -649,7 +621,7 @@ export default function Home() {
                         : selected === "连接管理" ? <ConnectionManagementPage />
                           : selected === "扫描管理" ? <ScanManagementPage />
                             : selected === "数据视图" ? <DataViewPage />
-                              : selected === "低代码 UI" ? <LowCodeWorkspace />
+                              : selected === "低代码 UI 开发" ? <LowCodeWorkspace />
                                 : mainWorkspaceLabels.has(selected) ? <MainWorkspace key={selected} section={selected} />
                                 : <PlaceholderPage selected={selected} />}
         </section>
