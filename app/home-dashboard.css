@@ -335,8 +335,8 @@
 /* Swap overview and supporting-section surfaces. */
 .home-page .home-work-panel,
 .home-page .home-panel-head,
-.home-page .home-statistics-body { background:#f3f4f6; }
-.home-page .home-resources,
+.home-page .home-statistics-body,
+.home-page .home-resources { background:#f3f4f6; }
 .home-page .home-advanced-services { background:#ffffff; }
 /* Softer charcoal field with distinct raised card surfaces. */
 .home-page .home-platforms { background:#f3f4f6; }
