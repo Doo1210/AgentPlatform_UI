@@ -17,7 +17,6 @@ import {
   Database,
   Eye,
   ExternalLink,
-  Factory,
   Filter,
   FileKey2,
   Gauge,
@@ -47,7 +46,6 @@ import {
   Settings2,
   ShieldCheck,
   SlidersHorizontal,
-  Sparkles,
   Store,
   Trash2,
   Upload,
@@ -62,7 +60,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { HomeDashboard, IndustrialWorkspace, industrialPlatforms, type PlatformId, type PlatformStatus } from "./HomeDashboard";
 import { FeatureIntroduction, advancedFeatures, type FeatureId } from "./FeatureIntroduction";
 import { PlatformIntroduction } from "./PlatformIntroduction";
-import { LowCodeWorkspace, MainWorkspace } from "./MainWorkspaces";
+import { getWorkspaceNavigation, LowCodeWorkspace, MainWorkspace } from "./MainWorkspaces";
 import { defaultFeatureStatuses, defaultPlatformStatuses, featureWorkspaceLabels } from "./demo-entitlements";
 import { LegacyPreview } from "./LegacyPreview";
 
@@ -77,6 +75,7 @@ type NavGroup = {
 
 const brandLogoSrc = `${import.meta.env.BASE_URL}wanwu-brand.png`;
 const organizationSwitchIconSrc = `${import.meta.env.BASE_URL}organization-switch.svg`;
+const manualSidebarPreferenceKey = "wanwu-sidebar-manually-collapsed";
 
 const primaryNav: NavGroup[] = [
   { label: "总览", icon: LayoutDashboard },
@@ -94,21 +93,18 @@ const businessNav: NavGroup[] = [
   },
 ];
 
-const standaloneNav: NavGroup[] = [
-  { label: "事件中心", icon: RadioTower },
-];
-
 const capabilityNav: NavGroup = {
   label: "能力与资源",
   icon: Blocks,
   items: [
-    { label: "模型中心", icon: Cpu },
+    { label: "模型管理", icon: Cpu },
     { label: "知识中心", icon: BrainCircuit },
     { label: "资源库", icon: LibraryBig },
+    { label: "事件中心", icon: RadioTower },
   ],
 };
 
-const mainWorkspaceLabels = new Set(["专家", "工作流", "智能体运行时", "软件开发套件", "模型中心", "知识中心", "资源库", "事件中心", "智能应用洞察"]);
+const mainWorkspaceLabels = new Set(["专家", "工作流", "智能体运行时", "软件开发套件", "模型管理", "知识中心", "资源库", "事件中心", "智能应用洞察"]);
 
 const managementItems: Record<string, NavItem[]> = {
   平台运营: [
@@ -207,6 +203,15 @@ const assetCategories: Record<AssetType, string[]> = {
   模型: ["全部", "通用语言", "工业视觉", "向量模型", "代码模型"],
 };
 
+const assetStageOptions = ["全部", "研发设计", "生产制造", "经营管理"] as const;
+type AssetStage = Exclude<(typeof assetStageOptions)[number], "全部">;
+// Prototype-only classifications for demonstrating combined filters.
+const assetStageCategories: Record<AssetStage, string[]> = {
+  研发设计: ["工艺优化", "知识服务", "知识检索", "通用语言", "向量模型", "代码模型"],
+  生产制造: ["设备运维", "质量管理", "安全生产", "生产协同", "生产系统", "数据连接", "工业视觉"],
+  经营管理: ["能源管理", "知识服务", "消息通知", "知识检索", "通用语言"],
+};
+
 const assetCatalog: Record<AssetType, typeof agents> = {
   专家: agents,
   工作流: [
@@ -247,6 +252,8 @@ export default function Home() {
   const featureStatuses = featureStatusesByOrg[organization] ?? defaultFeatureStatuses;
   const [mobileOpen, setMobileOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [workspaceViews, setWorkspaceViews] = useState<Record<string, string>>({});
+  const [workspaceSubviews, setWorkspaceSubviews] = useState<Record<string, string>>({});
   const [navTooltip, setNavTooltip] = useState<{ label: string; top: number } | null>(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [organizationPickerOpen, setOrganizationPickerOpen] = useState(false);
@@ -257,7 +264,8 @@ export default function Home() {
   const currentRole = roles.find((item) => item.value === role)!;
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
-      setSidebarCollapsed(window.localStorage.getItem("wanwu-sidebar-collapsed") === "true");
+      const manuallyCollapsed = window.localStorage.getItem(manualSidebarPreferenceKey) === "true";
+      setSidebarCollapsed(manuallyCollapsed);
     });
     return () => window.cancelAnimationFrame(frame);
   }, []);
@@ -265,7 +273,7 @@ export default function Home() {
   const toggleSidebar = () => {
     const next = !sidebarCollapsed;
     setSidebarCollapsed(next);
-    window.localStorage.setItem("wanwu-sidebar-collapsed", String(next));
+    window.localStorage.setItem(manualSidebarPreferenceKey, String(next));
     setNavTooltip(null);
     setFlyout(null);
     setOrganizationPickerOpen(false);
@@ -303,6 +311,7 @@ export default function Home() {
     setOrganizationPickerOpen(false);
     setUserMenuOpen(false);
     setMobileOpen(false);
+    setNavTooltip(null);
   };
 
   const selectSecondaryPage = (label: string) => {
@@ -315,17 +324,11 @@ export default function Home() {
   };
 
   const openPlatform = (id: PlatformId) => {
-    setActiveSecondary(null);
-    setSelected(`platform:intro:${id}`);
-    setFlyout(null);
-    setMobileOpen(false);
+    selectPage(`platform:intro:${id}`);
   };
 
   const openFeature = (id: FeatureId) => {
-    setActiveSecondary(null);
-    setSelected(`service:intro:${id === "runtime" ? "high-code" : id}`);
-    setFlyout(null);
-    setMobileOpen(false);
+    selectPage(`service:intro:${id === "runtime" ? "high-code" : id}`);
   };
 
   const activateFeature = (id: FeatureId) => setFeatureStatusesByOrg(byOrg => ({ ...byOrg, [organization]: { ...(byOrg[organization] ?? defaultFeatureStatuses), [id]: "active" } }));
@@ -387,6 +390,11 @@ export default function Home() {
 
   const featureIntroId: FeatureId | null = selected === "service:intro:high-code" ? "runtime" : selected === "service:intro:sdk" ? "sdk" : selected === "service:intro:lowcode" ? "lowcode" : selected === "service:intro:insights" ? "insights" : null;
   const activePlatform = activeSecondary ? industrialPlatforms.find((item) => item.id === activeSecondary) : null;
+  const enabledFeatures = advancedFeatures.filter((item) => featureStatuses[item.id] === "active");
+  const enabledPlatforms = industrialPlatforms.filter((item) => platformStatuses[item.id] === "active");
+  const workspaceNavigation = activePlatform ? [] : getWorkspaceNavigation(selected);
+  const workspaceView = workspaceNavigation.includes(workspaceViews[selected]) ? workspaceViews[selected] : workspaceNavigation[0];
+  const hasWorkspaceTabs = workspaceNavigation.length > 0 && selected !== "事件中心";
   const introPlatform = selected.startsWith("platform:intro:")
     ? industrialPlatforms.find((item) => item.id === selected.slice("platform:intro:".length))
     : null;
@@ -407,8 +415,7 @@ export default function Home() {
     setShowPlatformOperations(nextMenus.operations);
     setShowManagementCenter(nextMenus.management);
     if (losesPlatformOperations || losesManagementCenter) {
-      setSelected("总览");
-      setActiveSecondary(null);
+      selectPage("总览");
     }
     setOrganizationPickerOpen(false);
     setUserMenuOpen(false);
@@ -504,13 +511,14 @@ export default function Home() {
               <div className="nav-section-label">{capabilityNav.label}</div>
               <div className="nav-section-items">{capabilityNav.items!.map((item) => { const ItemIcon = item.icon; return <button key={item.label} className={`nav-item nav-child ${selected === item.label ? "active" : ""}`} data-nav-tooltip={`${capabilityNav.label} · ${item.label}`} aria-label={item.label} onClick={() => selectPage(item.label)}><ItemIcon size={17} strokeWidth={1.9} /><span className="nav-label">{item.label}</span></button>; })}</div>
             </div>
-            <div className="nav-bottom-tools" role="group" aria-label="事件、洞察与高级功能">
-              {standaloneNav.map((item) => {
-                const Icon = item.icon;
-                return <button key={item.label} className={`nav-item nav-primary ${selected === item.label ? "active" : ""}`} data-nav-tooltip={item.label} aria-label={item.label} onClick={() => selectPage(item.label)}><Icon size={18} strokeWidth={1.9} /><span className="nav-label">{item.label}</span></button>;
-              })}
-              {advancedFeatures.filter(item => featureStatuses[item.id] === "active").map(item => { const Icon = item.icon; return <button key={item.id} className={`nav-item nav-primary ${selected === featureWorkspaceLabels[item.id] ? "active" : ""}`} data-nav-tooltip={item.title} aria-label={item.title} onClick={() => enterFeature(item.id)}><Icon size={18} strokeWidth={1.9} /><span className="nav-label">{item.title}</span></button>; })}
-            </div>
+            {enabledFeatures.length > 0 && <div className="nav-section">
+              <div className="nav-section-label">高级功能</div>
+              <div className="nav-section-items">{enabledFeatures.map((item) => { const Icon = item.icon; return <button key={item.id} className={`nav-item nav-child ${selected === featureWorkspaceLabels[item.id] ? "active" : ""}`} data-nav-tooltip={`高级功能 · ${item.title}`} aria-label={item.title} onClick={() => enterFeature(item.id)}><Icon size={17} strokeWidth={1.9} /><span className="nav-label">{item.title}</span></button>; })}</div>
+            </div>}
+            {enabledPlatforms.length > 0 && <div className="nav-section">
+              <div className="nav-section-label">工业引擎</div>
+              <div className="nav-section-items">{enabledPlatforms.map((platform) => { const Icon = platform.icon; return <button key={platform.id} className="nav-item nav-child" data-nav-tooltip={`工业引擎 · ${platform.title}`} aria-label={platform.title} onClick={() => enterPlatform(platform.id)}><Icon size={17} strokeWidth={1.9} /><span className="nav-label">{platform.title}</span></button>; })}</div>
+            </div>}
           </nav>
         )}
         </div>
@@ -608,8 +616,11 @@ export default function Home() {
         </div>
       )}
 
-      <main className="main-area">
-        <section className="content">
+      <main className={`main-area ${selected !== "总览" ? "has-content-surface" : ""}`}>
+        <section className={`content ${selected !== "总览" ? "content-surface" : ""} ${hasWorkspaceTabs ? "tabbed-content" : ""}`}>
+          {hasWorkspaceTabs && <nav className="workspace-primary-tabs" aria-label={`${selected}功能切换`}>
+            {workspaceNavigation.map((label) => <button key={label} type="button" className={workspaceView === label ? "active" : ""} aria-current={workspaceView === label ? "page" : undefined} onClick={() => setWorkspaceViews((views) => ({ ...views, [selected]: label }))}>{label}</button>)}
+          </nav>}
           {selected === "总览" ? <HomeDashboard key={`${organization}:${role}`} role={role} organization={organization} statuses={platformStatuses} onNavigate={selectPage} onOpenPlatform={openPlatform} onEnterPlatform={enterPlatform} featureStatuses={featureStatuses} onOpenFeature={openFeature} onReturnLegacy={() => { selectPage("总览"); setLegacyMode(true); window.scrollTo(0, 0); }} />
             : selected === "资产广场" ? <Marketplace assetType={assetType} onTypeChange={setAssetType} />
               : featureIntroId ? <FeatureIntroduction key={`${organization}:${featureIntroId}`} id={featureIntroId} organization={organizationLabel(organization)} status={featureStatuses[featureIntroId]} onBack={() => selectPage("总览")} onActivate={() => activateFeature(featureIntroId)} onEnter={() => enterFeature(featureIntroId)} />
@@ -621,8 +632,8 @@ export default function Home() {
                         : selected === "连接管理" ? <ConnectionManagementPage />
                           : selected === "扫描管理" ? <ScanManagementPage />
                             : selected === "数据视图" ? <DataViewPage />
-                              : selected === "低代码 UI 开发" ? <LowCodeWorkspace />
-                                : mainWorkspaceLabels.has(selected) ? <MainWorkspace key={selected} section={selected} />
+                              : selected === "低代码 UI 开发" ? <LowCodeWorkspace activeView={workspaceView} />
+                                : mainWorkspaceLabels.has(selected) ? <MainWorkspace key={selected} section={selected} activeView={workspaceNavigation.length > 0 ? workspaceView : undefined} activeSubview={workspaceSubviews[`${selected}:${workspaceView}`]} onViewChange={(label) => setWorkspaceViews((views) => ({ ...views, [selected]: label }))} onSubviewChange={(label) => setWorkspaceSubviews((views) => ({ ...views, [`${selected}:${workspaceView}`]: label }))} />
                                 : <PlaceholderPage selected={selected} />}
         </section>
       </main>
@@ -634,47 +645,49 @@ export default function Home() {
 function Marketplace({ assetType, onTypeChange }: { assetType: AssetType; onTypeChange: (type: AssetType) => void }) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("全部");
+  const [stage, setStage] = useState<(typeof assetStageOptions)[number]>("全部");
   const categories = assetCategories[assetType];
   const assets = assetCatalog[assetType];
-  const typeIcons: Record<AssetType, LucideIcon> = { 专家: BadgeCheck, 工作流: Workflow, 解决方案: PackageOpen, 工具: Blocks, 模型: Cpu };
-  const ActiveTypeIcon = typeIcons[assetType];
   const filtered = assets.filter((agent) =>
     (category === "全部" || agent.tag === category) &&
+    (stage === "全部" || assetStageCategories[stage].includes(agent.tag)) &&
     (agent.name.includes(query) || agent.desc.includes(query)),
   );
+  const switchAssetType = (type: AssetType) => {
+    onTypeChange(type);
+    setCategory("全部");
+    setStage("全部");
+    setQuery("");
+  };
 
   return (
     <>
       <div className="asset-type-tabs" aria-label="资产类型">
         {assetTypeNavigation.map((item) => {
           const TypeIcon = item.icon;
-          return <button key={item.label} className={assetType === item.label ? "active" : ""} onClick={() => { onTypeChange(item.label); setCategory("全部"); setQuery(""); }}><TypeIcon size={17} />{item.menuLabel}</button>;
+          return <button key={item.label} type="button" className={assetType === item.label ? "active" : ""} aria-pressed={assetType === item.label} onClick={() => switchAssetType(item.label)}><TypeIcon size={17} />{item.menuLabel}</button>;
         })}
       </div>
-      <div className="explore-toolbar">
-        <div className="category-tabs" aria-label={`${assetType}分类`}>
-          {categories.map((item) => <button key={item} className={category === item ? "active" : ""} onClick={() => setCategory(item)}>{item}</button>)}
+      <section className="marketplace-filters" aria-label="资产筛选">
+        <div className="marketplace-filter-row">
+          <span className="marketplace-filter-label">应用分类：</span>
+          <div className="marketplace-filter-options" role="group" aria-label={`${assetType}分类`}>
+            {categories.map((item) => <button key={item} type="button" className={`marketplace-filter-chip ${category === item ? "active" : ""}`} aria-pressed={category === item} onClick={() => setCategory(item)}>{item}</button>)}
+          </div>
         </div>
-        <label className="resource-search"><Search size={16} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={`搜索${assetType}`} /></label>
+        <div className="marketplace-filter-row">
+          <span className="marketplace-filter-label">工业环节：</span>
+          <div className="marketplace-filter-options" role="group" aria-label="工业环节">
+            {assetStageOptions.map((item) => <button key={item} type="button" className={`marketplace-filter-chip ${stage === item ? "active" : ""}`} aria-pressed={stage === item} onClick={() => setStage(item)}>{item}</button>)}
+          </div>
+        </div>
+      </section>
+      <div className="marketplace-operations" role="group" aria-label="资产搜索与操作">
+        <label className="resource-search"><Search size={15} /><input aria-label={`搜索${assetType}`} value={query} onChange={(event) => setQuery(event.target.value)} placeholder={`搜索${assetType}`} /></label>
+        <label className="marketplace-type-filter"><span>类型</span><select aria-label="资产类型筛选" value={assetType} onChange={(event) => switchAssetType(event.target.value as AssetType)}>{assetTypeNavigation.map((item) => <option key={item.label} value={item.label}>{item.menuLabel}</option>)}</select></label>
       </div>
 
-      <div className="hero-strip">
-        <div className="hero-copy">
-          <span className="hero-kicker"><Sparkles size={14} />本周精选</span>
-          <h2>发现优质{assetType}资产，快速装配工业智能应用</h2>
-          <p>平台精选、统一治理、开箱即用，让每项智能能力都能被高效复用。</p>
-          <button>探索精选{assetType} <ChevronRight size={15} /></button>
-        </div>
-        <div className="hero-visual" aria-hidden="true">
-          <div className="orbit orbit-one" />
-          <div className="orbit orbit-two" />
-          <div className="visual-core"><ActiveTypeIcon size={31} /></div>
-          <span className="visual-node node-one"><Database size={15} /></span>
-          <span className="visual-node node-two"><Workflow size={15} /></span>
-          <span className="visual-node node-three"><Factory size={15} /></span>
-        </div>
-      </div>
-
+      <div className="marketplace-data data-scroll-region" role="region" aria-label="资产列表">
       <div className="section-heading"><div><h3>热门{assetType}</h3><span>{filtered.length} 个资源</span></div><button>查看全部 <ChevronRight size={15} /></button></div>
       <div className="agent-grid">
         {filtered.map((agent) => {
@@ -693,6 +706,7 @@ function Marketplace({ assetType, onTypeChange }: { assetType: AssetType; onType
         })}
       </div>
       {filtered.length === 0 && <div className="empty-state"><Search size={28} /><strong>未找到相关{assetType}</strong><span>试试其他关键词或分类</span></div>}
+      </div>
     </>
   );
 }
@@ -759,13 +773,13 @@ const knowledgeNetworks = [
 function PageToolbar({ searchPlaceholder, filterLabel = "状态", children }: { searchPlaceholder: string; filterLabel?: string; children?: ReactNode }) {
   return (
     <div className="prototype-toolbar">
-      <div className="prototype-toolbar-actions">{children}</div>
       <div className="prototype-toolbar-filters">
         <label className="prototype-search"><Search size={16} /><input placeholder={searchPlaceholder} /></label>
         <label className="prototype-select"><span>{filterLabel}</span><select defaultValue="全部"><option>全部</option><option>已发布</option><option>草稿</option></select><ChevronDown size={14} /></label>
         <button className="toolbar-icon-button" aria-label="筛选"><Filter size={16} /></button>
         <button className="toolbar-icon-button" aria-label="刷新"><RefreshCw size={16} /></button>
       </div>
+      <div className="prototype-toolbar-actions">{children}</div>
     </div>
   );
 }
@@ -780,7 +794,7 @@ function OntologyAgentPage() {
       <PageToolbar searchPlaceholder="搜索名称 / ID">
         <button className="primary-action"><Plus size={17} />新建本体智能体</button>
       </PageToolbar>
-      <div className="prototype-card-grid">
+      <div role="region" aria-label="数据卡片" className="data-scroll-region prototype-card-grid">
         {ontologyAgents.map((agent) => (
           <div className="entity-card" key={agent.name} role="button" aria-label={`查看${agent.name}详情`} onClick={() => setDetail(agent.name)} tabIndex={0} onKeyDown={(event) => { if (event.key === "Enter") setDetail(agent.name); }}>
             <div className="entity-card-head">
@@ -871,7 +885,7 @@ function KnowledgeNetworkPage() {
         <button className="primary-action"><Plus size={17} />新建知识网络</button>
         <button className="secondary-action"><Upload size={16} />导入</button>
       </PageToolbar>
-      <div className="prototype-card-grid knowledge-grid">
+      <div role="region" aria-label="数据卡片" className="data-scroll-region prototype-card-grid knowledge-grid">
         {knowledgeNetworks.map((network) => <div className="entity-card" key={network.name} role="button" aria-label={`查看${network.name}详情`} onClick={() => setDetail(network.name)} tabIndex={0} onKeyDown={(event) => { if (event.key === "Enter") setDetail(network.name); }}>
           <div className="entity-card-head"><span className="entity-avatar network"><Network size={23} /></span><div><h3>{network.name}</h3><p>{network.desc}</p></div><button aria-label="更多操作"><MoreHorizontal size={18} /></button></div>
           <div className="entity-card-meta"><span>对象类 {network.objects}</span><span>关系类 {network.relations}</span><span>行动类 {network.actions}</span></div>
@@ -909,8 +923,8 @@ function KnowledgeNetworkDetail({ name, onBack }: { name: string; onBack: () => 
       <div className="network-detail-header"><span className="entity-avatar network"><Network size={21} /></span><div><h2>{name}</h2><p>覆盖从订单到发货的供应链业务流程数据，为业务分析和本体智能体提供统一语义。</p><div className="network-detail-meta"><span>修改者：admin</span><span>更新时间：2026/04/27 18:41</span></div></div><button className="secondary-action"><Pencil size={15} />编辑</button></div>
       {activeSection === "概述" ? <>
         <div className="network-stat-grid">{[["对象类", "14", Box], ["关系类", "17", GitFork], ["行动类", "2", Activity]].map(([label,value,Icon]) => { const StatIcon = Icon as LucideIcon; return <div className="network-stat" key={label as string}><i><StatIcon size={25} /></i><div><span>{label as string}</span><strong>{value as string}</strong></div><button onClick={() => setActiveSection(label as string)}><Plus size={14} />新建{label as string}</button></div>; })}</div>
-        <div className="prototype-table recent-objects"><div className="table-title">最近修改的对象类</div><div className="prototype-table-head five"><span>名称</span><span>标签</span><span>修改者</span><span>更新时间</span><span>操作</span></div>{recent.map(row => <div className="prototype-table-row five" key={row[0]}><strong>{row[0]}</strong><span>{row[1]}</span><span>admin</span><span>{row[2]}</span><button><MoreHorizontal size={17} /></button></div>)}</div>
-      </> : activeSection === "建模预览" ? <div className="network-model-preview"><div className="model-preview-toolbar"><strong>知识网络建模预览</strong><span>14 个对象 · 17 条关系</span><button className="secondary-action"><RefreshCw size={14} />刷新布局</button></div><div className="model-canvas"><span className="model-node central">采购订单</span><span className="model-node node-a">供应商</span><span className="model-node node-b">物料</span><span className="model-node node-c">仓库</span><span className="model-node node-d">工厂</span><i className="model-edge edge-a" /><i className="model-edge edge-b" /><i className="model-edge edge-c" /><i className="model-edge edge-d" /></div></div> : <div className="network-resource-panel"><div className="network-resource-head"><div><h3>{activeSection}</h3><span>管理知识网络中的{activeSection}资源</span></div><button className="primary-action"><Plus size={16} />新建{activeSection}</button></div><div className="prototype-table"><div className="prototype-table-head resource-columns"><span>名称</span><span>标识</span><span>标签</span><span>修改者</span><span>更新时间</span><span>操作</span></div>{recent.slice(0, activeSection === "行动类" ? 2 : 4).map((row, index) => <div className="prototype-table-row resource-columns" key={`${activeSection}-${row[0]}`}><strong>{row[0]}</strong><code>{["factory", "purchase_order", "material", "material_request"][index]}</code><span>{row[1]}</span><span>admin</span><span>{row[2]}</span><button><MoreHorizontal size={17} /></button></div>)}</div></div>}
+        <div role="region" aria-label="数据列表" className="data-scroll-region prototype-table recent-objects"><div className="table-title">最近修改的对象类</div><div className="prototype-table-head five"><span>名称</span><span>标签</span><span>修改者</span><span>更新时间</span><span>操作</span></div>{recent.map(row => <div className="prototype-table-row five" key={row[0]}><strong>{row[0]}</strong><span>{row[1]}</span><span>admin</span><span>{row[2]}</span><button><MoreHorizontal size={17} /></button></div>)}</div>
+      </> : activeSection === "建模预览" ? <div className="network-model-preview"><div className="model-preview-toolbar"><strong>知识网络建模预览</strong><span>14 个对象 · 17 条关系</span><button className="secondary-action"><RefreshCw size={14} />刷新布局</button></div><div className="model-canvas"><span className="model-node central">采购订单</span><span className="model-node node-a">供应商</span><span className="model-node node-b">物料</span><span className="model-node node-c">仓库</span><span className="model-node node-d">工厂</span><i className="model-edge edge-a" /><i className="model-edge edge-b" /><i className="model-edge edge-c" /><i className="model-edge edge-d" /></div></div> : <div className="network-resource-panel"><div className="network-resource-head"><div><h3>{activeSection}</h3><span>管理知识网络中的{activeSection}资源</span></div><button className="primary-action"><Plus size={16} />新建{activeSection}</button></div><div role="region" aria-label="数据列表" className="data-scroll-region prototype-table"><div className="prototype-table-head resource-columns"><span>名称</span><span>标识</span><span>标签</span><span>修改者</span><span>更新时间</span><span>操作</span></div>{recent.slice(0, activeSection === "行动类" ? 2 : 4).map((row, index) => <div className="prototype-table-row resource-columns" key={`${activeSection}-${row[0]}`}><strong>{row[0]}</strong><code>{["factory", "purchase_order", "material", "material_request"][index]}</code><span>{row[1]}</span><span>admin</span><span>{row[2]}</span><button><MoreHorizontal size={17} /></button></div>)}</div></div>}
     </div>
   </div>;
 }
@@ -937,7 +951,7 @@ function ConnectionManagementPage({ compact = false }: { compact?: boolean }) {
   ];
   return <div className={`prototype-page ${compact ? "is-compact" : ""}`}>
     <PageToolbar searchPlaceholder="搜索连接名称、连接地址" filterLabel="连接类型"><button className="primary-action"><Plus size={17} />新建连接</button></PageToolbar>
-    <div className="prototype-table connection-table">
+    <div role="region" aria-label="数据列表" className="data-scroll-region prototype-table connection-table">
       <div className="prototype-table-head connection-columns"><span>名称</span><span>连接类型</span><span>连接地址</span><span>操作人</span><span>更新时间</span><span>最近扫描状态</span></div>
       {rows.map(row => <div className="prototype-table-row connection-columns" key={row[0]}><strong>{row[0]}</strong><span className="db-type"><Database size={15} />{row[1]}</span><code>{row[2]}</code><span>{row[3]}</span><span>{row[4]}</span><em className={row[5] === "扫描完成" ? "success" : "muted"}>{row[5]}</em></div>)}
     </div>
@@ -953,7 +967,7 @@ function ScanManagementPage({ compact = false }: { compact?: boolean }) {
   ];
   return <div className={`prototype-page ${compact ? "is-compact" : ""}`}>
     <PageToolbar searchPlaceholder="搜索扫描任务" filterLabel="任务状态"><button className="primary-action"><ScanEye size={17} />新建扫描任务</button></PageToolbar>
-    <div className="prototype-table"><div className="prototype-table-head scan-columns"><span>数据源</span><span>扫描方式</span><span>状态</span><span>发现视图</span><span>开始时间</span><span>耗时</span></div>{scans.map(row => <div className="prototype-table-row scan-columns" key={row[0]}><strong>{row[0]}</strong><span>{row[1]}</span><em className={row[2] === "已完成" ? "success" : row[2] === "运行中" ? "running" : "muted"}>{row[2]}</em><span>{row[3]}</span><span>{row[4]}</span><span>{row[5]}</span></div>)}</div>
+    <div role="region" aria-label="数据列表" className="data-scroll-region prototype-table"><div className="prototype-table-head scan-columns"><span>数据源</span><span>扫描方式</span><span>状态</span><span>发现视图</span><span>开始时间</span><span>耗时</span></div>{scans.map(row => <div className="prototype-table-row scan-columns" key={row[0]}><strong>{row[0]}</strong><span>{row[1]}</span><em className={row[2] === "已完成" ? "success" : row[2] === "运行中" ? "running" : "muted"}>{row[2]}</em><span>{row[3]}</span><span>{row[4]}</span><span>{row[5]}</span></div>)}</div>
   </div>;
 }
 
@@ -973,10 +987,10 @@ function DataViewPage({ nested = false }: { nested?: boolean }) {
         <aside className="view-group-panel"><div><strong>{viewType === "原子视图" ? "已扫描数据源" : "自定义视图分组"}</strong><button><Plus size={14} /></button></div><label><Search size={14} /><input placeholder="搜索分组" /></label><button className="active">全部视图 ({rows.length})</button>{viewType === "原子视图" ? <><button>MySQL · 供应链生产库</button><button>PostgreSQL · 设备仓</button></> : <><button>业务分析组 (1)</button><button>质量管理组 (1)</button><button>未分组 (0)</button></>}</aside>
         <div className="view-main-panel">
       <div className="data-view-toolbar">
-        <div><button className="primary-action"><Plus size={16} />新建{viewType}</button><button className="secondary-action"><Upload size={15} />导入</button><button className="secondary-action disabled"><Trash2 size={15} />删除</button></div>
         <label className="resource-search"><Search size={16} /><input placeholder="搜索视图" /></label>
+        <div><button className="primary-action"><Plus size={16} />新建{viewType}</button><button className="secondary-action"><Upload size={15} />导入</button><button className="secondary-action disabled"><Trash2 size={15} />删除</button></div>
       </div>
-      <div className="data-view-panel">
+      <div className="data-view-panel data-scroll-region" role="region" aria-label="数据视图列表">
         <div className="data-view-head extended"><span>视图名称</span><span>技术名称</span><span>字段数</span><span>状态</span><span>来源 / 分组</span></div>
         {rows.map((row) => (
           <div className="data-view-row extended" key={row[1]}><strong>{row[0]}</strong><code>{row[1]}</code><span>{row[2]}</span><em>{row[3]}</em><span>{row[4]}</span></div>

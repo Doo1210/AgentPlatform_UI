@@ -7,6 +7,7 @@ import "./app/platform-introduction.css";
 import "./app/feature-introduction.css";
 import "./app/main-workspaces.css";
 import "./app/legacy-preview.css";
+import "./app/platform-workspaces.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

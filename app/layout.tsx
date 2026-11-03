@@ -6,6 +6,7 @@ import "./platform-introduction.css";
 import "./feature-introduction.css";
 import "./main-workspaces.css";
 import "./legacy-preview.css";
+import "./platform-workspaces.css";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });

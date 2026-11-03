@@ -280,9 +280,7 @@ export function IndustrialWorkspace({ platform, section }: { platform: Industria
   const Icon = platform.icon;
   return (
     <div className="industrial-workspace">
-      <div className="workspace-topline"><span>{platform.title}</span><ChevronRight size={14} /><strong>{section}</strong></div>
-      <div className="workspace-intro"><span className={`workspace-icon ${platform.accent}`}><Icon size={26} /></span><div><span className="home-eyebrow">PLATFORM WORKSPACE</span><h1>{section}</h1><p>{platform.summary}</p></div></div>
-      <div className="workspace-feature-grid">{platform.features.map((feature, index) => <article key={feature}><span>0{index + 1}</span><h2>{feature}</h2><p>在{platform.title}中查看与管理相关内容，并与主平台的专家、工作流和事件协同。</p></article>)}</div>
+      <div className="resource-card-grid data-scroll-region" role="region" aria-label={`${platform.title} · ${section}`}>{platform.features.map((feature) => <article className="resource-card" key={feature}><div className="resource-card-heading"><span className="resource-card-icon"><Icon size={21} strokeWidth={1.8} /></span><h3>{feature}</h3></div><p>在{platform.title}中查看与管理相关内容，并与主平台的专家、工作流和事件协同。</p><div className="resource-card-footer"><span>{section}</span><span>原型示意</span></div></article>)}</div>
     </div>
   );
 }

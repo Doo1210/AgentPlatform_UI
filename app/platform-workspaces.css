@@ -1,0 +1,120 @@
+/* Shared content treatment for advanced capabilities and industrial engines. */
+.content-surface .industrial-workspace { flex: 1 1 0; min-width: 0; min-height: 0; max-width: none; margin: 0; display: flex; flex-direction: column; overflow: hidden; }
+.industrial-workspace > .resource-card-grid { align-content: start; padding: 0 4px 4px 0; }
+
+.content-surface .prototype-toolbar, .content-surface .prototype-page.is-compact .prototype-toolbar, .content-surface .data-view-toolbar { min-height: 40px; margin: 0 0 8px; gap: 8px; flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: flex-start; }
+.content-surface .prototype-toolbar-filters { width: auto; margin-left: 0; flex-wrap: wrap; gap: 8px; }
+.content-surface .prototype-toolbar-actions, .content-surface .data-view-toolbar > div { margin-left: auto; flex-wrap: wrap; gap: 8px; }
+.content-surface .prototype-search, .content-surface .data-view-toolbar .resource-search { flex: none; width: 200px; max-width: 100%; height: 28px; border-color: #dfe6ef; border-radius: 6px; }
+.content-surface .prototype-search input, .content-surface .view-group-panel input { font-size: 12px; color: #33485f; }
+.content-surface .prototype-select { height: 28px; border-color: #dfe6ef; border-radius: 6px; font-size: 12px; }
+.content-surface .prototype-select select { min-width: 70px; font: inherit; }
+.content-surface .primary-action, .content-surface .secondary-action { height: 28px; border-radius: 6px; font-size: 12px; box-shadow: none; }
+.content-surface .primary-action { border-color: #327fe0; background: #327fe0; }
+.content-surface .primary-action:hover { background: #236ec8; }
+.content-surface .toolbar-icon-button { width: 28px; height: 28px; border-color: #dfe6ef; border-radius: 6px; }
+.content-surface .prototype-table, .content-surface .data-view-panel { border: 0; border-radius: 0; background: transparent; }
+.content-surface .prototype-table-head, .content-surface .data-view-head { min-height: 36px; color: #8090a5; background: #f5f7fa; font-size: 12px; }
+.content-surface .prototype-table-row, .content-surface .data-view-row { min-height: 52px; color: #596b82; font-size: 12px; }
+.content-surface .prototype-table-row > *, .content-surface .data-view-row > * { min-width: 0; }
+.content-surface .prototype-table-row strong, .content-surface .data-view-row strong { color: #263b53; font-size: 12px; font-weight: 650; }
+.content-surface .prototype-table-row code, .content-surface .data-view-row code { font-size: 11px; overflow-wrap: anywhere; }
+.content-surface .prototype-table-row em, .content-surface .data-view-row em { font-size: 11px; }
+.content-surface .table-title { padding: 8px 0 12px; font-size: 14px; color: #263b53; }
+.content-surface .prototype-pagination { min-height: 40px; font-size: 12px; }
+.content-surface .prototype-pagination button { height: 28px; border-radius: 6px; font-size: 12px; }
+
+.content-surface .prototype-card-grid, .content-surface .prototype-card-grid.knowledge-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 16px; }
+.content-surface .entity-card { min-height: 160px; padding: 20px; border-color: #e5ebf2; border-radius: 12px; box-shadow: none; }
+.content-surface .entity-card:hover { border-color: #c2d5f2; box-shadow: none; transform: none; }
+.content-surface .entity-card-head { min-height: 0; gap: 12px; }
+.content-surface .entity-avatar { width: 40px; height: 40px; border-radius: 10px; }
+.content-surface .entity-card h3 { font-size: 14px; line-height: 1.6; color: #263b53; }
+.content-surface .entity-card p { font-size: 12px; line-height: 1.7; color: #8090a5; }
+.content-surface .entity-card-meta { flex-wrap: wrap; gap: 8px 12px; margin-top: 14px; padding-top: 12px; font-size: 11px; }
+.content-surface .entity-card-time { font-size: 11px; }
+.content-surface .entity-title-row { flex-wrap: wrap; gap: 4px 8px; }
+.content-surface .entity-title-row h3 { white-space: normal; overflow-wrap: anywhere; }
+.content-surface .entity-title-row em { border: 0; font-size: 11px; }
+.content-surface .agent-use-button { right: 20px; bottom: 20px; min-width: 60px; height: 28px; padding: 0 10px; border-radius: 6px; box-shadow: none; font-size: 12px; }
+.content-surface .agent-use-button:hover { transform: none; box-shadow: none; }
+
+.content-surface .data-view-workspace { border: 0; border-radius: 0; }
+.content-surface .view-main-panel { padding: 0 0 0 16px; }
+.content-surface .view-group-panel { padding-top: 0; font-size: 12px; }
+.content-surface .view-group-panel > div, .content-surface .view-group-panel > button { font-size: 12px; }
+.content-surface .connection-tabs { width: fit-content; max-width: 100%; min-height: 32px; margin-bottom: 8px; padding: 3px; border: 0; border-radius: 9px; flex-wrap: wrap; gap: 2px; background: #f2f5fa; }
+.content-surface .connection-tabs button { min-width: 0; height: 26px; padding: 4px 10px; border: 0; border-radius: 6px; font-size: 12px; }
+.content-surface .connection-tabs button.active { color: #416ef1; background: #fff; box-shadow: none; }
+.content-surface .data-view-tabs { min-height: 37px; height: auto; margin-bottom: 8px; flex-wrap: wrap; gap: 8px 28px; }
+.content-surface .data-view-tabs button { min-width: 0; min-height: 36px; padding: 0 0 12px; font-size: 14px; }
+.content-surface .data-view-tabs button::after { left: 0; right: 0; height: 3px; }
+.content-surface .data-view-tabs.is-secondary { width: fit-content; min-height: 32px; padding: 3px; border: 0; border-radius: 9px; gap: 2px; background: #f2f5fa; }
+.content-surface .data-view-tabs.is-secondary button { min-height: 26px; padding: 4px 10px; border-radius: 6px; font-size: 12px; }
+.content-surface .data-view-tabs.is-secondary button.active { color: #416ef1; background: #fff; }
+.content-surface .data-view-tabs.is-secondary button::after { display: none; }
+.content-surface .detail-nav, .content-surface .detail-surface, .content-surface .network-function-nav, .content-surface .network-detail-header, .content-surface .network-resource-panel { border: 0; border-radius: 0; }
+.content-surface .detail-surface { padding: 0 0 0 20px; }
+.content-surface .network-detail-header { min-height: 0; padding: 0 0 14px; }
+.content-surface .network-resource-panel { padding: 0; }
+.content-surface .detail-nav button, .content-surface .network-function-nav button:not(.network-detail-back) { min-height: 32px; font-size: 12px; }
+.content-surface .prototype-form label { font-size: 12px; }
+.content-surface .prototype-form input, .content-surface .prototype-form textarea { font-size: 12px; border-radius: 6px; }
+
+/* Introductions stay inside the shared white surface rather than a fixed header. */
+.content-surface .pi-page, .content-surface .pi-page.afi-page { max-width: none; margin: 0; padding: 0; color: #263b53; font-family: inherit; }
+.content-surface .pi-page :is(h1, h2, h3, strong) { font-family: inherit; }
+.content-surface .pi-page .pi-topbar { position: static; inset: auto; margin: 0 0 16px; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; backdrop-filter: none; transition: none; }
+.content-surface .pi-page .pi-banner-inner { min-height: 40px; padding: 0 0 12px; gap: 10px; border-bottom: 1px solid #dce3ed; }
+.content-surface .pi-page .pi-banner-platform { min-width: 0; gap: 8px; flex-wrap: wrap; }
+.content-surface .pi-page .pi-banner-platform h1 { font-size: 14px; color: #263b53; }
+.content-surface .pi-page .pi-banner-logo { width: 24px; height: 24px; color: #397be0; }
+.content-surface .pi-page .pi-banner-logo svg { width: 20px; height: 20px; }
+.content-surface .pi-page .pi-topbar .intro-back { width: 24px; height: 28px; }
+.content-surface .pi-page .pi-banner-actions { width: auto; padding: 0; margin-left: auto; }
+.content-surface .pi-page .home-button { min-height: 28px; padding: 0 12px; border-radius: 6px; font-size: 12px; box-shadow: none; transform: none; }
+.content-surface .pi-page .home-button.primary { border-color: #327fe0; background: #327fe0; color: #fff; }
+.content-surface .pi-page .pi-hero, .content-surface .afi-page .afi-hero { padding: 12px 0 20px; gap: 24px; border: 0; border-radius: 0; background: transparent; }
+.content-surface .pi-page .pi-hero h2, .content-surface .afi-page .afi-hero h2 { margin: 8px 0 10px; max-width: 600px; font-size: 22px; line-height: 1.5; letter-spacing: 0; color: #263b53; }
+.content-surface .pi-page .pi-hero-copy > p, .content-surface .afi-page .afi-hero > div > p { color: #8090a5; font-size: 12px; line-height: 1.8; }
+.content-surface .pi-page .pi-preview, .content-surface .afi-page .afi-preview { border-color: #e5ebf2; border-radius: 12px; box-shadow: none; }
+.content-surface .pi-page .pi-keywords { gap: 6px; }
+.content-surface .pi-page .pi-keywords span { border-color: #e5ebf2; border-radius: 5px; color: #6c7c91; }
+.content-surface .afi-page .afi-audience { margin-top: 14px; font-size: 12px; }
+.content-surface .pi-page .pi-features, .content-surface .afi-page .afi-capabilities { padding: 16px 0; gap: 16px; border: 0; }
+.content-surface .pi-page .pi-feature-grid { gap: 16px; }
+.content-surface .pi-page .pi-feature-grid article, .content-surface .afi-page .afi-capabilities article { padding: 20px; border: 1px solid #e5ebf2; border-radius: 12px; background: #fff; box-shadow: none; }
+.content-surface .pi-page .pi-feature-grid h3, .content-surface .afi-page .afi-capabilities h3 { margin: 12px 0 8px; color: #263b53; font-size: 14px; }
+.content-surface .pi-page .pi-feature-grid p, .content-surface .afi-page .afi-capabilities p { color: #8090a5; font-size: 12px; line-height: 1.7; }
+.content-surface .afi-page .afi-capabilities article > svg { width: 22px; height: 22px; color: #397be0; }
+.content-surface .pi-page .pi-section-heading { margin-bottom: 14px; }
+.content-surface .pi-page .pi-section-heading h2, .content-surface .afi-page .afi-section-head h2 { margin: 6px 0 14px; color: #263b53; font-size: 18px; letter-spacing: 0; }
+.content-surface .pi-page .pi-collaboration, .content-surface .pi-page .pi-onboarding, .content-surface .afi-page .afi-start, .content-surface .afi-page .afi-boundary { padding: 20px; border: 0; border-radius: 12px; color: #263b53; background: #f5f7fa; }
+.content-surface .pi-page .pi-collaboration .pi-eyebrow, .content-surface .pi-page .pi-integration-note { color: #8090a5; }
+.content-surface .pi-page .pi-planning-badge { border-color: #dfe6ef; color: #6c7c91; }
+.content-surface .pi-page .pi-flow { gap: 12px; padding: 16px 0; border-color: #e5ebf2; }
+.content-surface .pi-page .pi-flow > div { padding: 14px; border: 1px solid #e5ebf2; border-radius: 10px; background: #fff; }
+.content-surface .pi-page .pi-flow strong { color: #263b53; font-size: 13px; }
+.content-surface .pi-page .pi-flow span, .content-surface .pi-page .pi-collaboration-details p { color: #8090a5; font-size: 12px; }
+.content-surface .pi-page .pi-flow svg { color: #397be0; }
+.content-surface .pi-page .pi-lower-grid, .content-surface .afi-page .afi-bottom-grid { margin-top: 20px; gap: 20px; padding-top: 0; }
+.content-surface .afi-page .afi-start li, .content-surface .afi-page .afi-scenario { padding: 16px; border-color: #e5ebf2; border-radius: 10px; background: #fff; }
+.content-surface .afi-page .afi-scenario h2 { font-size: 18px; color: #263b53; }
+.content-surface .afi-page .afi-boundary h3, .content-surface .pi-page .pi-onboarding h2 { color: #263b53; font-size: 16px; }
+
+@media (max-width: 900px) {
+  .content-surface .prototype-toolbar, .content-surface .data-view-toolbar { padding-left: 44px; }
+  .content-surface .data-view-page > .data-view-tabs { padding-left: 44px; }
+  .content-surface .pi-page .pi-banner-inner { padding-left: 44px; }
+}
+@media (max-width: 760px) {
+  .content-surface .prototype-toolbar-filters { width: 100%; }
+  .content-surface .prototype-search { width: 100%; }
+  .content-surface .prototype-toolbar-actions { justify-content: flex-end; }
+  .content-surface .view-main-panel, .content-surface .detail-surface { padding: 0; }
+  .content-surface .view-group-panel { padding-bottom: 8px; }
+  .content-surface .pi-page .pi-banner-inner { flex-wrap: wrap; gap: 8px; }
+  .content-surface .pi-page .pi-hero, .content-surface .afi-page .afi-hero { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .content-surface .pi-page .pi-hero h2, .content-surface .afi-page .afi-hero h2 { font-size: 20px; }
+  .content-surface .pi-page .pi-flow { grid-template-columns: minmax(0, 1fr); }
+}
