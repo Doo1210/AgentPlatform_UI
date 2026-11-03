@@ -47,3 +47,5 @@ npm run build
 ```
 
 仓库通过 GitHub Actions 自动部署到 GitHub Pages。
+
+线上预览：[https://doo1210.github.io/AgentPlatform_UI/](https://doo1210.github.io/AgentPlatform_UI/)。
